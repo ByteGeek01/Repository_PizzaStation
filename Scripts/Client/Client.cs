@@ -92,8 +92,10 @@ public class Client : MonoBehaviour
 
             UpdateFloatingText();
 
+            // Pago de cuenta
             inventary.BillPayed();
 
+            // Si ya recibió toda la orden, come y luego se va
             if (noOrder <= 0)
             {
                 client.state = ClientStates.EATING;
