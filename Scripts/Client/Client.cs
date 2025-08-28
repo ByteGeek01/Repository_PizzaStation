@@ -12,6 +12,7 @@ public enum ClientStates
     THINKING,
     ORDERING,
     EATING,
+    PAYING,
     LEAVING
 }
 
@@ -30,8 +31,8 @@ public class Client : MonoBehaviour
     public Animator anim;
 
     public Transform target;
-    public Transform exit;
 
+    public Inventary inventary;
     public FoodSO pedido;
     public float noOrder;
 
@@ -50,6 +51,12 @@ public class Client : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
         anim = GetComponent<Animator>();
 
+        GameObject player = GameObject.FindWithTag("Player");
+        if(player != null)
+        {
+            inventary = player.GetComponent<Inventary>();
+        }
+
         noOrder = Random.Range(1, 4);
 
         GameObject uiInstance = Instantiate(floatingUIPrefab, transform.position + Vector3.up * 2f, Quaternion.identity, transform);
@@ -66,10 +73,6 @@ public class Client : MonoBehaviour
             target = table.chair;
             client.state = ClientStates.GOING_TO_TABLE;
             agent.SetDestination(target.position);
-        }
-        else
-        {
-            // esperar
         }
     }
 
@@ -88,6 +91,8 @@ public class Client : MonoBehaviour
             Destroy(other.gameObject);
 
             UpdateFloatingText();
+
+            inventary.BillPayed();
 
             if (noOrder <= 0)
             {
@@ -139,17 +144,15 @@ public class Client : MonoBehaviour
                 */
                 Debug.Log("Waiting");
                 break;
-            // Come y luego se va
+            // Come y paga
             case ClientStates.EATING:
                 if (thingking < timeToThing)
                 {
                     thingking += 1 * Time.deltaTime;
                     if (thingking >= timeToThing)
                     {
-                        client.state = ClientStates.LEAVING;
+                        client.state = ClientStates.PAYING;
                         target = GameManager.instance.spawnPoint;
-                        agent.SetDestination(target.position);
-                        StartCoroutine(Bye());
                         anim.SetBool("order", false);
                     }
                 }
@@ -160,7 +163,15 @@ public class Client : MonoBehaviour
                 prefab.SetActive(false);
                 anim.SetBool("order", false);
                 */
-                Debug.Log("Eat and Bye");
+                break;
+            case ClientStates.PAYING:
+                StartCoroutine(Bye());
+                Debug.Log("Eat and Pay");
+                break;
+            // Se va
+            case ClientStates.LEAVING:
+                agent.SetDestination(target.position);
+                Debug.Log("Bye");
                 break;
         }
     }
@@ -176,7 +187,10 @@ public class Client : MonoBehaviour
     // Se elimina al cliente luego de unos segundos y se desocupa la mesa
     public IEnumerator Bye()
     {
-        yield return new WaitForSeconds(5f);
+        yield return new WaitForSeconds(2f);
+        client.state = ClientStates.LEAVING;
+        //agent.SetDestination(target.position);
+        yield return new WaitForSeconds(4f);
         GameManager.instance.RemoveClient(this);
         Destroy(gameObject);
         targetTable.isOccupied = false;
