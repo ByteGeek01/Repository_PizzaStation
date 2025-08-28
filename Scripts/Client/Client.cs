@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.AI;
 using static UnityEditor.ShaderGraph.Internal.KeywordDependentCollection;
 
+// Estados de cliente
 public enum ClientStates
 {
     WAITING,
@@ -65,6 +66,7 @@ public class Client : MonoBehaviour
         UpdateFloatingText();
     }
 
+    // Elige la mesa
     public void ChooseTable(Table table)
     {
         if(table != null)
@@ -86,11 +88,11 @@ public class Client : MonoBehaviour
         // Si recibió su pedido
         if (other.CompareTag("Pizza") && client.state == ClientStates.ORDERING)
         {
-            noOrder--; // Resta una pizza entregada
+            noOrder--; // Resta hasta 0 para completar la orden
 
             Destroy(other.gameObject);
 
-            UpdateFloatingText();
+            UpdateFloatingText(); // Actualiza el estado de la orden
 
             // Pago de cuenta
             inventary.BillPayed();
@@ -102,10 +104,6 @@ public class Client : MonoBehaviour
                 thingking = 0f;
                 anim.SetBool("order", true);
                 Debug.Log($"{client.nameClient} recibió todas las pizzas y empieza a comer.");
-            }
-            else
-            {
-                Debug.Log($"{client.nameClient} aún espera {noOrder} pizza(s).");
             }
         }
     }
@@ -128,6 +126,7 @@ public class Client : MonoBehaviour
                     }
                 }
                 break;
+
             // Ordena
             case ClientStates.ORDERING:
                 anim.SetBool("order", true);
@@ -146,6 +145,7 @@ public class Client : MonoBehaviour
                 */
                 Debug.Log("Waiting");
                 break;
+
             // Come y paga
             case ClientStates.EATING:
                 if (thingking < timeToThing)
@@ -170,6 +170,7 @@ public class Client : MonoBehaviour
                 StartCoroutine(Bye());
                 Debug.Log("Eat and Pay");
                 break;
+
             // Se va
             case ClientStates.LEAVING:
                 agent.SetDestination(target.position);
@@ -178,6 +179,7 @@ public class Client : MonoBehaviour
         }
     }
 
+    // Tamaño de la orden del cliente
     private void UpdateFloatingText()
     {
         if (floatingText != null)

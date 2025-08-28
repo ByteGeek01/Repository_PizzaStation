@@ -25,6 +25,7 @@ public class TakeObject : MonoBehaviour
     {
         if (pickedObject != null) return;
 
+        // Toma los objetos con los tags especificos y cobra por ingredientes
         if (Input.GetKey(KeyCode.E) && pickableTags.Contains(other.tag))
         {
             if(other.tag != "Pizza")

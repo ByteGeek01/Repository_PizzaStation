@@ -45,7 +45,7 @@ public class GameManager : MonoBehaviour
         GameObject go = Instantiate(clientObject, spawnPoint.position, Quaternion.identity);
         Client clt = go.GetComponent<Client>();
         clients.Add(clt);
-        clt.pedido = RandomChooseFromMenu();
+        //clt.pedido = RandomChooseFromMenu();
         return clt;
     }
 
@@ -114,7 +114,7 @@ public class GameManager : MonoBehaviour
             }
         }
 
-        // Si ya llegó a llenarse, debe vaciarse para volver a spawnear
+        // Si ya llega a llenarse, debe vaciarse para volver a spawnear
         if (!isSpawning && clients.Count == 0)
         {
             numberWave = 0;
@@ -124,10 +124,12 @@ public class GameManager : MonoBehaviour
     }
     
     // Comida del menu
+    /*
     public FoodSO RandomChooseFromMenu()
     {
         return menu[Random.Range(0, menu.Count)];
     }
+    */
 
     // Borra al cliente una vez termina de comer y camina a la entrada
     public void RemoveClient(Client client)

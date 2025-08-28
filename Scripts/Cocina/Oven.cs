@@ -44,6 +44,7 @@ public class Oven : MonoBehaviour
         }
     }
 
+    // Ingredientes presentes
     private bool AllIngredientsPresent()
     {
         foreach (bool hasIngredient in ingredients)
