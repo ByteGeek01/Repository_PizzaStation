@@ -90,7 +90,7 @@ public class Client : MonoBehaviour
         {
             noOrder--; // Resta hasta 0 para completar la orden
 
-            Destroy(other.gameObject);
+            //Destroy(other.gameObject);
 
             UpdateFloatingText(); // Actualiza el estado de la orden
 
