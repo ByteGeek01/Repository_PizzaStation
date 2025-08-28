@@ -1,16 +1,29 @@
 using UnityEngine;
+using UnityEngine.AI;
 
 public class Mesero : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    public NavMeshAgent agent;
+
+    public Transform reception;
+
+    public GameObject carriedObject;
+    private Client targetClient;
+
     void Start()
     {
-        
+        agent = GetComponent<NavMeshAgent>();
+
+        agent.SetDestination(reception.position);
     }
 
-    // Update is called once per frame
-    void Update()
+    private void OnTriggerEnter(Collider other)
     {
-        
+        // Si colisiona con Pizza
+        if (other.CompareTag("Pizza"))
+        {
+            //Destroy(other.gameObject);
+            carriedObject.SetActive(true);
+        }
     }
 }
