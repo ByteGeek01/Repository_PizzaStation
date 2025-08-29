@@ -42,7 +42,7 @@ public class Client : MonoBehaviour
     private float thingking = 0f;
     public float timeToThing = 6f;
 
-    public GameObject prefab;
+    public Mesero mesero;
 
     public GameObject floatingUIPrefab;
     private TMP_Text floatingText;
@@ -56,6 +56,12 @@ public class Client : MonoBehaviour
         if(player != null)
         {
             inventary = player.GetComponent<Inventary>();
+        }
+
+        GameObject waiter = GameObject.FindWithTag("Waiter");
+        if (waiter != null)
+        {
+            mesero = waiter.GetComponent<Mesero>();
         }
 
         noOrder = Random.Range(1, 4);
@@ -88,23 +94,7 @@ public class Client : MonoBehaviour
         // Si recibió su pedido
         if (other.CompareTag("Pizza") && client.state == ClientStates.ORDERING)
         {
-            noOrder--; // Resta hasta 0 para completar la orden
-
-            //Destroy(other.gameObject);
-
-            UpdateFloatingText(); // Actualiza el estado de la orden
-
-            // Pago de cuenta
-            inventary.BillPayed();
-
-            // Si ya recibió toda la orden, come y luego se va
-            if (noOrder <= 0)
-            {
-                client.state = ClientStates.EATING;
-                thingking = 0f;
-                anim.SetBool("order", true);
-                Debug.Log($"{client.nameClient} recibió todas las pizzas y empieza a comer.");
-            }
+            OrderComing();
         }
     }
 
@@ -185,6 +175,27 @@ public class Client : MonoBehaviour
         if (floatingText != null)
         {
             floatingText.text = $"x{noOrder}";
+        }
+    }
+
+    public void OrderComing()
+    {
+        noOrder--; // Resta hasta 0 para completar la orden
+
+        UpdateFloatingText(); // Actualiza el estado de la orden
+
+        mesero.carriedObject.SetActive(false);
+        mesero.carriedObject.transform.parent = null;
+
+        // Pago de cuenta
+        inventary.BillPayed();
+
+        // Si ya recibió toda la orden, come y luego se va
+        if (noOrder <= 0)
+        {
+            client.state = ClientStates.EATING;
+            thingking = 0f;
+            anim.SetBool("order", true);
         }
     }
 

@@ -7,7 +7,7 @@ public class TakeObject : MonoBehaviour
 
     public GameObject pickedObject = null;
 
-    private HashSet<string> pickableTags = new HashSet<string> { "Pizza", "Cheese", "Bread", "Meat", "Sauce" };
+    private HashSet<string> pickableTags = new HashSet<string> { "Pizza", "Cheese", "Bread", "Meat", "Sauce", "Waiter" };
 
     private Inventary inventary;
 
