@@ -40,6 +40,6 @@ public class Inventary : MonoBehaviour
 
     private void UpdateCashUI()
     {
-        cashText.text = "$Cash: " + cash.ToString();
+        cashText.text = "Cash: $" + cash.ToString();
     }
 }

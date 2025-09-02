@@ -4531,6 +4531,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cash: 0
   use: 0
+  cashText: {fileID: 1075284980}
 --- !u!1001 &178779899
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -26270,7 +26271,7 @@ GameObject:
   - component: {fileID: 1075284981}
   - component: {fileID: 1075284980}
   m_Layer: 5
-  m_Name: Text (TMP)
+  m_Name: Cash
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
