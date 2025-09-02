@@ -66,17 +66,17 @@ public class Mesero : MonoBehaviour
 
     void Update()
     {
-        // Si tiene un cliente objetivo
+        // Si tiene un cliente
         if (targetClient != null)
         {
             float distance = Vector3.Distance(transform.position, targetClient.transform.position);
             if (distance < 1.5f)
             {
-                // Entregar la comida
-                carriedObject.SetActive(false); // Ocultar plato visual
+                // Al entregar la comida, apaga su gameobject, no lo destruye
+                carriedObject.SetActive(false);
                 targetClient = null;
 
-                // Volver a recepción
+                // Vuelve al mostrador
                 agent.SetDestination(reception.position);
             }
         }

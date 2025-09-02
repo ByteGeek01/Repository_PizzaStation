@@ -35,6 +35,7 @@ public class TakeObject : MonoBehaviour
                 if(inventary.cash <= 0)
                 {
                     inventary.cash = 0;
+                    inventary.use = false;
                     return;
                 }
             }
