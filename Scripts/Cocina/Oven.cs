@@ -21,25 +21,21 @@ public class Oven : MonoBehaviour
             case "Bread":
                 ingredients[(int)IngredientType.Bread] = true;
                 Destroy(other.gameObject);
-                itemCollect.InventaryUI[0].SetActive(false);
                 break;
 
             case "Sauce":
                 ingredients[(int)IngredientType.Sauce] = true;
                 Destroy(other.gameObject);
-                itemCollect.InventaryUI[1].SetActive(false);
                 break;
 
             case "Cheese":
                 ingredients[(int)IngredientType.Cheese] = true;
                 Destroy(other.gameObject);
-                itemCollect.InventaryUI[2].SetActive(false);
                 break;
 
             case "Meat":
                 ingredients[(int)IngredientType.Meat] = true;
                 Destroy(other.gameObject);
-                itemCollect.InventaryUI[3].SetActive(false);
                 break;
         }
 
@@ -66,6 +62,11 @@ public class Oven : MonoBehaviour
         isBaking = true;
         yield return new WaitForSeconds(5f);
         Instantiate(pizza, spawnPizza.position, Quaternion.identity);
+
+        itemCollect.InventaryUI[0].SetActive(false);
+        itemCollect.InventaryUI[1].SetActive(false);
+        itemCollect.InventaryUI[2].SetActive(false);
+        itemCollect.InventaryUI[3].SetActive(false);
 
         // Espera un segundo y reinicia ingredientes
         yield return new WaitForSeconds(1f);
