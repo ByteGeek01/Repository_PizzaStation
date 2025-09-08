@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class Oven : MonoBehaviour
 {
+    public TakeObject itemCollect;
+
     public Transform spawnPizza;
     public GameObject pizza;
 
@@ -19,21 +21,25 @@ public class Oven : MonoBehaviour
             case "Bread":
                 ingredients[(int)IngredientType.Bread] = true;
                 Destroy(other.gameObject);
+                itemCollect.InventaryUI[0].SetActive(false);
                 break;
 
             case "Sauce":
                 ingredients[(int)IngredientType.Sauce] = true;
                 Destroy(other.gameObject);
+                itemCollect.InventaryUI[1].SetActive(false);
                 break;
 
             case "Cheese":
                 ingredients[(int)IngredientType.Cheese] = true;
                 Destroy(other.gameObject);
+                itemCollect.InventaryUI[2].SetActive(false);
                 break;
 
             case "Meat":
                 ingredients[(int)IngredientType.Meat] = true;
                 Destroy(other.gameObject);
+                itemCollect.InventaryUI[3].SetActive(false);
                 break;
         }
 

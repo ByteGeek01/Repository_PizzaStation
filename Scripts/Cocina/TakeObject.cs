@@ -7,6 +7,8 @@ public class TakeObject : MonoBehaviour
 
     public GameObject[] pickedObject;
 
+    public GameObject[] InventaryUI;
+
     private HashSet<string> pickableTags = new HashSet<string> { "Pizza", "Cheese", "Bread", "Meat", "Sauce", "Waiter" };
 
     private Inventary inventary;
@@ -63,9 +65,26 @@ public class TakeObject : MonoBehaviour
             // Registra el objeto en la lista
             pickedObject[index] = other.gameObject;
         }
+
+        if (other.CompareTag("Bread"))
+        {
+            InventaryUI[0].SetActive(true);
+        }
+        if (other.CompareTag("Sauce"))
+        {
+            InventaryUI[1].SetActive(true);
+        }
+        if (other.CompareTag("Cheese"))
+        {
+            InventaryUI[2].SetActive(true);
+        }
+        if (other.CompareTag("Meat"))
+        {
+            InventaryUI[3].SetActive(true);
+        }
     }
 
-    // Devuelve el primer index libre del array
+    // Devuelve el primer index del array
     private int GetFirstFreeSlot()
     {
         for (int i = 0; i < pickedObject.Length; i++)
@@ -76,7 +95,7 @@ public class TakeObject : MonoBehaviour
         return -1;
     }
 
-    // Revisa si ya se ha recogido ese objeto
+    // Revisa si ya se ha recogido el objeto
     private bool IsAlreadyPicked(GameObject obj)
     {
         foreach (var picked in pickedObject)
