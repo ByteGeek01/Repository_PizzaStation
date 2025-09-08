@@ -3,9 +3,9 @@ using UnityEngine;
 
 public class TakeObject : MonoBehaviour
 {
-    public GameObject point;
+    public GameObject[] point;
 
-    public GameObject pickedObject = null;
+    public GameObject[] pickedObject;
 
     private HashSet<string> pickableTags = new HashSet<string> { "Pizza", "Cheese", "Bread", "Meat", "Sauce", "Waiter" };
 
@@ -18,27 +18,36 @@ public class TakeObject : MonoBehaviour
         {
             inventary = player.GetComponent<Inventary>();
         }
+
+        // Array de objetos recogidos al mismo tamaño que los puntos
+        pickedObject = new GameObject[point.Length];
     }
 
-    // Objetos con tag
     private void OnTriggerStay(Collider other)
     {
-        if (pickedObject != null) return;
-
-        // Toma los objetos con los tags especificos y cobra por ingredientes
+        // Si se presiona la tecla E y el objeto tiene un tag de la lista
         if (Input.GetKey(KeyCode.E) && pickableTags.Contains(other.tag))
         {
-            if(other.tag != "Pizza")
+            if (IsAlreadyPicked(other.gameObject)) return;
+
+            // Busca la primera posición libre en el array
+            int index = GetFirstFreeSlot();
+
+            if (index == -1) return;
+
+            // Si no es pizza, se cobra
+            if (other.tag != "Pizza")
             {
                 inventary.CostIngredients();
 
-                if(inventary.cash <= 0)
+                if (inventary.cash <= 0)
                 {
                     inventary.cash = 0;
                     inventary.use = false;
                     return;
                 }
             }
+
             Rigidbody rb = other.attachedRigidbody;
 
             if (rb != null)
@@ -47,9 +56,34 @@ public class TakeObject : MonoBehaviour
                 rb.isKinematic = true;
             }
 
-            other.transform.SetParent(point.transform);
+            // Poner el objeto dentro de los puntos de agarre
+            other.transform.SetParent(point[index].transform);
             other.transform.localPosition = Vector3.zero;
-            pickedObject = other.gameObject;
+
+            // Registra el objeto en la lista
+            pickedObject[index] = other.gameObject;
         }
+    }
+
+    // Devuelve el primer index libre del array
+    private int GetFirstFreeSlot()
+    {
+        for (int i = 0; i < pickedObject.Length; i++)
+        {
+            if (pickedObject[i] == null)
+                return i;
+        }
+        return -1;
+    }
+
+    // Revisa si ya se ha recogido ese objeto
+    private bool IsAlreadyPicked(GameObject obj)
+    {
+        foreach (var picked in pickedObject)
+        {
+            if (picked == obj)
+                return true;
+        }
+        return false;
     }
 }
