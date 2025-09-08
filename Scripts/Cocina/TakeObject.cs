@@ -95,7 +95,7 @@ public class TakeObject : MonoBehaviour
         return -1;
     }
 
-    // Revisa si ya se ha recogido el objeto
+    // Revisa si ya ha recogido el objeto
     private bool IsAlreadyPicked(GameObject obj)
     {
         foreach (var picked in pickedObject)
