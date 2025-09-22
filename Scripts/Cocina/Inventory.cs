@@ -9,6 +9,8 @@ public class Inventory : MonoBehaviour
     public Transform scrollInventory;
     public GameObject panelProduct;
 
+    public static Inventory inventoryInst;
+
     public FoodSO GetFoodSO(string foodName)
     {
         foreach (var food in foodSOs)
@@ -16,6 +18,11 @@ public class Inventory : MonoBehaviour
             if (food.foodName == foodName) return food;
         }
         return null;
+    }
+
+    public void Awake()
+    {
+        inventoryInst = this;
     }
 
 
