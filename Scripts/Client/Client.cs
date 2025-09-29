@@ -4,6 +4,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
 using static UnityEditor.ShaderGraph.Internal.KeywordDependentCollection;
+using DG.Tweening;
 
 // Estados de cliente
 public enum ClientStates
@@ -14,7 +15,8 @@ public enum ClientStates
     ORDERING,
     EATING,
     PAYING,
-    LEAVING
+    LEAVING,
+    NO_EATEN
 }
 
 [System.Serializable]
@@ -46,6 +48,8 @@ public class Client : MonoBehaviour
 
     public GameObject floatingUIPrefab;
     private TMP_Text floatingText;
+
+    public float CountDown = 200f;
 
     void Start()
     {
@@ -90,6 +94,7 @@ public class Client : MonoBehaviour
         if (other.GetComponent<Table>() == targetTable && client.state == ClientStates.GOING_TO_TABLE)
         {
             client.state = ClientStates.THINKING;
+            transform.DOJump(transform.position, 2.5f, 1, 1);
         }
         // Si recibió su pedido
         if (other.CompareTag("Pizza") && client.state == ClientStates.ORDERING)
@@ -100,6 +105,12 @@ public class Client : MonoBehaviour
 
     void Update()
     {
+        CountDown -= Time.deltaTime;
+        if(CountDown >= 0)
+        {
+            client.state = ClientStates.NO_EATEN;
+        }
+
         switch (client.state)
         {
             // Piensa
@@ -165,6 +176,11 @@ public class Client : MonoBehaviour
             case ClientStates.LEAVING:
                 agent.SetDestination(target.position);
                 Debug.Log("Bye");
+                break;
+
+            case ClientStates.NO_EATEN:
+                agent.SetDestination(target.position);
+                Debug.Log("Mal restaurant");
                 break;
         }
     }
