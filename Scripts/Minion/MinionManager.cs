@@ -10,7 +10,7 @@ public class MinionManager : MonoBehaviour
     public GameObject minionPrefab;
     public UnityEvent minionEvent;
 
-    public System.Action minionClicked;
+    public System.Action<float, int, float> minionClicked;
 
     public void Awake()
     {
@@ -35,7 +35,7 @@ public class MinionManager : MonoBehaviour
             {
                 if (hitInfo.collider.CompareTag("Minion"))
                 {
-                    minionClicked?.Invoke();
+                    minionClicked?.Invoke(2.5f, 1, 0.5f);
                 }
             }
         }

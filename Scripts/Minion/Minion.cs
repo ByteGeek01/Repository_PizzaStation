@@ -8,8 +8,8 @@ public class Minion : MonoBehaviour
         MinionManager.Instance.minionClicked += Jump;
     }
 
-    public void Jump()
+    public void Jump(float height, int jump, float duration)
     {
-        transform.DOJump(transform.position, 1f, 1, 0.5f, false);
+        transform.DOJump(transform.position, height, jump, duration, false);
     }
 }
