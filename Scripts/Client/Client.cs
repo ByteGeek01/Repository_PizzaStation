@@ -87,6 +87,7 @@ public class Client : MonoBehaviour
             client.state = ClientStates.GOING_TO_TABLE;
             agent.SetDestination(target.position);
             timer = true;
+            CountDown = 200;
         }
     }
 
@@ -96,7 +97,6 @@ public class Client : MonoBehaviour
         if (other.GetComponent<Table>() == targetTable && client.state == ClientStates.GOING_TO_TABLE)
         {
             client.state = ClientStates.THINKING;
-            transform.DOJump(transform.position, 2.5f, 1, 1);
         }
         // Si recibió su pedido
         if (other.CompareTag("Pizza") && client.state == ClientStates.ORDERING)
@@ -125,6 +125,7 @@ public class Client : MonoBehaviour
                     thingking += 1 * Time.deltaTime;
                     if(thingking >= timeToThing)
                     {
+                        transform.DOJump(transform.position, 1.5f, 1, 1);
                         client.state = ClientStates.ORDERING;
                         Debug.Log("Order");
                         thingking = 0;
@@ -187,6 +188,7 @@ public class Client : MonoBehaviour
                 CountDown = 0;
                 timer = false;
                 agent.SetDestination(target.position);
+                StartCoroutine(Bye());
                 Debug.Log("Mal restaurant");
                 break;
         }
@@ -216,6 +218,7 @@ public class Client : MonoBehaviour
         // Si ya recibió toda la orden, come y luego se va
         if (noOrder <= 0)
         {
+            timer = false;
             client.state = ClientStates.EATING;
             thingking = 0f;
             anim.SetBool("order", true);
@@ -225,7 +228,6 @@ public class Client : MonoBehaviour
     // Se elimina al cliente luego de unos segundos y se desocupa la mesa
     public IEnumerator Bye()
     {
-        timer = false;
         yield return new WaitForSeconds(2f);
         client.state = ClientStates.LEAVING;
         //agent.SetDestination(target.position);
