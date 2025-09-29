@@ -1,12 +1,15 @@
 using UnityEngine;
 using TMPro;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class ClickerManager : MonoBehaviour
 {
     public static ClickerManager instance;
     public TextMeshProUGUI pointsText;
     public TextMeshProUGUI minionsText;
+
+    public System.Action minionClicked;
 
     public void Awake()
     {
@@ -22,6 +25,7 @@ public class ClickerManager : MonoBehaviour
     {
         ClickerDataManager.points += pointsToAdd;
         refreshUI();
+        minionClicked?.Invoke();
     }
 
     public void AddMinions(int minionToAdd)
