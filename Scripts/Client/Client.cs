@@ -49,6 +49,7 @@ public class Client : MonoBehaviour
     public GameObject floatingUIPrefab;
     private TMP_Text floatingText;
 
+    private bool timer = false;
     public float CountDown = 200f;
 
     void Start()
@@ -85,6 +86,7 @@ public class Client : MonoBehaviour
             target = table.chair;
             client.state = ClientStates.GOING_TO_TABLE;
             agent.SetDestination(target.position);
+            timer = true;
         }
     }
 
@@ -105,10 +107,13 @@ public class Client : MonoBehaviour
 
     void Update()
     {
-        CountDown -= Time.deltaTime;
-        if(CountDown >= 0)
+        if (timer)
         {
-            client.state = ClientStates.NO_EATEN;
+            CountDown -= Time.deltaTime;
+            if (CountDown <= 0)
+            {
+                client.state = ClientStates.NO_EATEN;
+            }
         }
 
         switch (client.state)
@@ -179,6 +184,8 @@ public class Client : MonoBehaviour
                 break;
 
             case ClientStates.NO_EATEN:
+                CountDown = 0;
+                timer = false;
                 agent.SetDestination(target.position);
                 Debug.Log("Mal restaurant");
                 break;
@@ -218,6 +225,7 @@ public class Client : MonoBehaviour
     // Se elimina al cliente luego de unos segundos y se desocupa la mesa
     public IEnumerator Bye()
     {
+        timer = false;
         yield return new WaitForSeconds(2f);
         client.state = ClientStates.LEAVING;
         //agent.SetDestination(target.position);
