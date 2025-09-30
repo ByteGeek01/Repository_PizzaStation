@@ -1,6 +1,7 @@
 using System.Drawing;
 using UnityEngine;
 using UnityEngine.AI;
+using DG.Tweening;
 
 public class Mesero : MonoBehaviour
 {
@@ -29,7 +30,7 @@ public class Mesero : MonoBehaviour
         // Si colisiona con Pizza
         if (other.CompareTag("Pizza") && other.gameObject != carriedObject)
         {
-            // Activar objeto visual que representa la comida
+            // Activa prefab que representa la comida
             carriedObject.SetActive(true);
             Rigidbody rb = other.attachedRigidbody;
             inventary.WaiterCost();
@@ -46,7 +47,7 @@ public class Mesero : MonoBehaviour
 
             Destroy(other.gameObject);
 
-            // Busca cliente (ORDERING)
+            // Busca al cliente
             foreach (Client client in GameManager.instance.clients)
             {
                 if (client.client.state == ClientStates.ORDERING)
@@ -78,6 +79,7 @@ public class Mesero : MonoBehaviour
 
                 // Vuelve al mostrador
                 agent.SetDestination(reception.position);
+                transform.DOJump(transform.position, 1, 1, 1);
             }
         }
     }

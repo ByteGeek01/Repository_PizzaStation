@@ -3,7 +3,6 @@ using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
-using static UnityEditor.ShaderGraph.Internal.KeywordDependentCollection;
 using DG.Tweening;
 
 // Estados de cliente
@@ -174,7 +173,6 @@ public class Client : MonoBehaviour
                 */
                 break;
             case ClientStates.PAYING:
-                StartCoroutine(Bye());
                 Debug.Log("Eat and Pay");
                 break;
 
@@ -187,10 +185,26 @@ public class Client : MonoBehaviour
             case ClientStates.NO_EATEN:
                 CountDown = 0;
                 timer = false;
-                agent.SetDestination(target.position);
-                StartCoroutine(Bye());
+
                 Debug.Log("Mal restaurant");
+
+                // Movimiento
+                agent.isStopped = true;
+
+                // Triste
+                DG.Tweening.Sequence sadSeq = DOTween.Sequence();
+                sadSeq.Append(transform.DOLocalRotate(new Vector3(0, 10, 0), 0.5f).SetRelative(true))
+                      .Append(transform.DOLocalRotate(new Vector3(0, -20, 0), 1f).SetRelative(true))
+                      .Append(transform.DOLocalRotate(new Vector3(0, 10, 0), 0.5f).SetRelative(true))
+                      .OnComplete(() =>
+                      {
+                          // Cuando termine el "bajón", se levanta y se va
+                          agent.isStopped = false;
+                          target = GameManager.instance.spawnPoint;
+                          StartCoroutine(Bye());
+                      });
                 break;
+
         }
     }
 
@@ -222,6 +236,7 @@ public class Client : MonoBehaviour
             client.state = ClientStates.EATING;
             thingking = 0f;
             anim.SetBool("order", true);
+            transform.DOJump(transform.position, 1.5f, 1, 1);
         }
     }
 
@@ -230,7 +245,6 @@ public class Client : MonoBehaviour
     {
         yield return new WaitForSeconds(2f);
         client.state = ClientStates.LEAVING;
-        //agent.SetDestination(target.position);
         yield return new WaitForSeconds(4f);
         GameManager.instance.RemoveClient(this);
         Destroy(gameObject);
