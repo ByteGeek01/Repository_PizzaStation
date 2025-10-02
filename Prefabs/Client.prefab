@@ -170,6 +170,8 @@ MonoBehaviour:
   timeToThing: 1
   mesero: {fileID: 0}
   floatingUIPrefab: {fileID: 5982590285516493341, guid: ebc2b655591bc834a891b2aab034969d, type: 3}
+  clientUIPrefab: {fileID: 3813563868070466443, guid: 3ce03520fb2cc2f44b2a107b8f5f9e19, type: 3}
+  CountDown: 200
 --- !u!195 &263062743946620525
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -199,10 +201,10 @@ Rigidbody:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2775852313003116726}
-  serializedVersion: 4
+  serializedVersion: 5
   m_Mass: 1
-  m_Drag: 0
-  m_AngularDrag: 0.05
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}

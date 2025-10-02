@@ -48,6 +48,9 @@ public class Client : MonoBehaviour
     public GameObject floatingUIPrefab;
     private TMP_Text floatingText;
 
+    public GameObject clientUIPrefab;   // Prefab del item de la lista
+    private ClientUIItem uiItem;        // Referencia al UI instanciado
+
     private bool timer = false;
     public float CountDown = 200f;
 
@@ -74,6 +77,14 @@ public class Client : MonoBehaviour
         floatingText = uiInstance.GetComponentInChildren<TMP_Text>();
 
         UpdateFloatingText();
+
+        // 🔹 Instanciar item en el panel global
+        if (clientUIPrefab != null && UIManager.instance != null)
+        {
+            GameObject item = Instantiate(clientUIPrefab, UIManager.instance.clientsPanel);
+            uiItem = item.GetComponent<ClientUIItem>();
+            uiItem.Setup(this); // le pasamos el cliente
+        }
     }
 
     // Elige la mesa
@@ -109,9 +120,15 @@ public class Client : MonoBehaviour
         if (timer)
         {
             CountDown -= Time.deltaTime;
+
+            // 🔹 actualizar el UI del cliente
+            if (uiItem != null)
+                uiItem.UpdateTimer(CountDown);
+
             if (CountDown <= 0)
             {
                 client.state = ClientStates.NO_EATEN;
+                RemoveUI();
             }
         }
 
@@ -159,19 +176,16 @@ public class Client : MonoBehaviour
                     thingking += 1 * Time.deltaTime;
                     if (thingking >= timeToThing)
                     {
-                        client.state = ClientStates.PAYING;
+                        client.state = ClientStates.LEAVING;
                         target = GameManager.instance.spawnPoint;
+                        agent.SetDestination(target.position);
                         anim.SetBool("order", false);
+
+                        StartCoroutine(Bye());
                     }
                 }
-                /*
-                client.state = ClientStates.LEAVING;
-                target = GameManager.instance.spawnPoint;
-                agent.SetDestination(target.position);
-                prefab.SetActive(false);
-                anim.SetBool("order", false);
-                */
                 break;
+
             case ClientStates.PAYING:
                 Debug.Log("Eat and Pay");
                 break;
@@ -188,22 +202,23 @@ public class Client : MonoBehaviour
 
                 Debug.Log("Mal restaurant");
 
-                // Movimiento
                 agent.isStopped = true;
 
-                // Triste
                 DG.Tweening.Sequence sadSeq = DOTween.Sequence();
                 sadSeq.Append(transform.DOLocalRotate(new Vector3(0, 10, 0), 0.5f).SetRelative(true))
                       .Append(transform.DOLocalRotate(new Vector3(0, -20, 0), 1f).SetRelative(true))
                       .Append(transform.DOLocalRotate(new Vector3(0, 10, 0), 0.5f).SetRelative(true))
                       .OnComplete(() =>
                       {
-                          // Cuando termine el "bajón", se levanta y se va
                           agent.isStopped = false;
+                          client.state = ClientStates.LEAVING;
                           target = GameManager.instance.spawnPoint;
+                          agent.SetDestination(target.position);
+
                           StartCoroutine(Bye());
                       });
                 break;
+
 
         }
     }
@@ -215,21 +230,22 @@ public class Client : MonoBehaviour
         {
             floatingText.text = $"x{noOrder}";
         }
+
+        // 🔹 actualizar en el panel global
+        if (uiItem != null)
+            uiItem.UpdateOrder(noOrder);
     }
 
     public void OrderComing()
     {
-        noOrder--; // Resta hasta 0 para completar la orden
-
-        UpdateFloatingText(); // Actualiza el estado de la orden
+        noOrder--;
+        UpdateFloatingText();
 
         mesero.carriedObject.SetActive(false);
         mesero.carriedObject.transform.parent = null;
 
-        // Pago de cuenta
         inventary.BillPayed();
 
-        // Si ya recibió toda la orden, come y luego se va
         if (noOrder <= 0)
         {
             timer = false;
@@ -237,6 +253,18 @@ public class Client : MonoBehaviour
             thingking = 0f;
             anim.SetBool("order", true);
             transform.DOJump(transform.position, 1.5f, 1, 1);
+
+            RemoveUI();
+        }
+    }
+
+
+    private void RemoveUI()
+    {
+        if (uiItem != null)
+        {
+            Destroy(uiItem.gameObject);
+            uiItem = null;
         }
     }
 
