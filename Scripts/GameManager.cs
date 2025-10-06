@@ -9,7 +9,7 @@ public class GameManager : MonoBehaviour
 
     public List<Table> tables;
     public List<Client> clients;
-    public List<FoodSO> menu;
+    //public List<FoodSO> menu;
 
     public GameObject[] element;
     public Transform[] spawnElement;
@@ -23,6 +23,9 @@ public class GameManager : MonoBehaviour
     public float spawnInterval = 10f;
     public int maxClients = 6;
     private bool isSpawning = true;
+
+    public int unhappyClients = 0;
+    public GameObject lose;
 
     public void Awake()
     {
@@ -166,6 +169,25 @@ public class GameManager : MonoBehaviour
 
     public void Restart()
     {
-        SceneManager.LoadScene(0);
+        SceneManager.LoadScene(2);
+    }
+
+    public void RegisterUnhappyClient()
+    {
+        unhappyClients++;
+
+        if (unhappyClients >= 6)
+        {
+            GameOver();
+        }
+    }
+
+    private void GameOver()
+    {
+        if (lose != null)
+        {
+            lose.SetActive(true);
+            Debug.Log("GAME OVER - Demasiados clientes molestos!");
+        }
     }
 }

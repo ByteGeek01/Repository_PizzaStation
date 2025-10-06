@@ -35,7 +35,7 @@ public class Client : MonoBehaviour
     public Transform target;
 
     public Inventary inventary;
-    public FoodSO pedido;
+    //public FoodSO pedido;
     public float noOrder;
 
     public Table targetTable;
@@ -48,8 +48,8 @@ public class Client : MonoBehaviour
     public GameObject floatingUIPrefab;
     private TMP_Text floatingText;
 
-    public GameObject clientUIPrefab;   // Prefab del item de la lista
-    private ClientUIItem uiItem;        // Referencia al UI instanciado
+    public GameObject clientUIPrefab;
+    private ClientUIItem uiItem;
 
     private bool timer = false;
     public float CountDown = 200f;
@@ -199,6 +199,8 @@ public class Client : MonoBehaviour
             case ClientStates.NO_EATEN:
                 CountDown = 0;
                 timer = false;
+
+                GameManager.instance.RegisterUnhappyClient();
 
                 Debug.Log("Mal restaurant");
 

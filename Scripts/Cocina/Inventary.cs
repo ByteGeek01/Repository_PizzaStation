@@ -1,45 +1,82 @@
 using UnityEngine;
 using TMPro;
-using UnityEngine.UI;
 
+/// <summary>
+/// Gestiona el dinero del jugador y las transacciones del restaurante.
+/// </summary>
 public class Inventary : MonoBehaviour
 {
-    // Dinero
-    public int cash;
-    public bool use;
+    [Header("Dinero")]
+    [SerializeField] private int cash = 100;
+    [SerializeField] private TextMeshProUGUI cashText;
 
-    public TextMeshProUGUI cashText;
+    [Header("Configuración de valores")]
+    [SerializeField] private int billIncome = 80;
+    [SerializeField] private int ingredientCost = 5;
+    [SerializeField] private int waiterCost = 10;
+    [SerializeField] private int chefCost = 20;
 
-    public void Start()
+    public bool Use { get; private set; }
+
+    private void Start()
     {
         cash = 100;
         UpdateCashUI();
     }
 
-    // Cuenta de cliente pagada
+    // Suma dinero cuando el cliente paga su cuenta.
     public void BillPayed()
     {
-        cash = cash + 80;
-        UpdateCashUI();
+        AddCash(billIncome);
     }
 
-    // Costo de ingredientes
+    // Resta dinero al comprar ingredientes.
     public void CostIngredients()
     {
-        cash = cash - 10;
-        use = true;
-        UpdateCashUI();
+        SubtractCash(ingredientCost);
+        Use = true;
     }
 
-    // Pago de empleado
+    // Resta dinero al pagar al mesero.
     public void WaiterCost()
     {
-        cash = cash - 20;
+        SubtractCash(waiterCost);
+    }
+
+    // Resta el sueldo del chef
+    public void ChefCost()
+    {
+        SubtractCash(chefCost);
+    }
+
+    // Suma dinero al inventario.
+    public void AddCash(int amount)
+    {
+        cash += Mathf.Max(0, amount); // evita agregar valores negativos
         UpdateCashUI();
     }
 
+    // Resta dinero del inventario, sin permitir valores negativos.
+    public void SubtractCash(int amount)
+    {
+        cash = Mathf.Max(0, cash - Mathf.Abs(amount));
+        UpdateCashUI();
+    }
+
+    // Actualiza el texto del dinero en pantalla.
     private void UpdateCashUI()
     {
-        cashText.text = "Cash: $" + cash.ToString();
+        if (cashText != null)
+        {
+            cashText.text = $"Cash: ${cash}";
+        }
+    }
+
+    // Retorna el dinero actual.
+    public int GetCash() => cash;
+
+    public void ResetUse()
+    {
+        Use = false;
     }
 }

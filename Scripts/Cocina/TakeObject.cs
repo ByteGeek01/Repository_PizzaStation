@@ -42,10 +42,9 @@ public class TakeObject : MonoBehaviour
             {
                 inventary.CostIngredients();
 
-                if (inventary.cash <= 0)
+                if (inventary.GetCash() <= 0)
                 {
-                    inventary.cash = 0;
-                    inventary.use = false;
+                    inventary.AddCash(0); // no cambia nada, solo mantiene consistencia
                     return;
                 }
             }
