@@ -1,86 +1,110 @@
-using System.Drawing;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.AI;
 using DG.Tweening;
+using System;
+using System.Collections.Generic;
 
 public class Mesero : MonoBehaviour
 {
+    [Header("Referencias")]
     public NavMeshAgent agent;
-
     public Transform reception;
-
     public GameObject point;
-    public GameObject carriedObject;
+    public GameObject carriedObject; // Pizza visual
+    public Inventary inventary;
 
     private Client targetClient;
+    public Action OnReachReception;
+    public Action OnReceivePizza;
+    public Action OnReturnToReception;
 
-    public Inventary inventary;
+    private static HashSet<Client> assignedClients = new HashSet<Client>();
+
+    private PizzaCollider pizzaCollider;
 
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
-
-        agent.SetDestination(reception.position);
-
         carriedObject.SetActive(false);
+
+        pizzaCollider = carriedObject.GetComponent<PizzaCollider>();
+        if (pizzaCollider != null)
+            pizzaCollider.mesero = this;
+
+        OnReachReception = GoToReception;
+        OnReceivePizza = GoToClient;
+        OnReturnToReception = GoToReception;
+
+        OnReachReception?.Invoke();
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        // Si colisiona con Pizza
-        if (other.CompareTag("Pizza") && other.gameObject != carriedObject)
+        if (other.CompareTag("Pizza") && !carriedObject.activeSelf)
         {
-            // Activa prefab que representa la comida
-            carriedObject.SetActive(true);
-            Rigidbody rb = other.attachedRigidbody;
-            inventary.WaiterCost();
-
-            if (rb != null)
-            {
-                rb.useGravity = false;
-                rb.isKinematic = true;
-            }
-
-            carriedObject.transform.SetParent(point.transform);
-            carriedObject.transform.localPosition = Vector3.zero;
-            //carriedObject = other.gameObject;
-
-            Destroy(other.gameObject);
-
-            // Busca al cliente
-            foreach (Client client in GameManager.instance.clients)
-            {
-                if (client.client.state == ClientStates.ORDERING)
-                {
-                    targetClient = client;
-                    agent.SetDestination(targetClient.transform.position);
-                    break;
-                }
-            }
-        }
-
-        if (other.CompareTag("Client"))
-        {
-            carriedObject.transform.parent = null;
+            TakePizza(other.gameObject);
         }
     }
 
-    void Update()
+    private void GoToReception()
     {
-        // Si tiene un cliente
+        agent.SetDestination(reception.position);
+    }
+
+    private void TakePizza(GameObject pizza)
+    {
+        carriedObject.SetActive(true);
+        if (pizzaCollider != null)
+            pizzaCollider.enabled = true;
+
+        carriedObject.transform.SetParent(point.transform);
+        carriedObject.transform.localPosition = Vector3.zero;
+
+        Destroy(pizza);
+
+        targetClient = GetNextFreeClient();
+
         if (targetClient != null)
         {
-            float distance = Vector3.Distance(transform.position, targetClient.transform.position);
-            if (distance < 1.5f)
-            {
-                // Al entregar la comida, apaga su gameobject, no lo destruye
-                carriedObject.SetActive(false);
-                targetClient = null;
-
-                // Vuelve al mostrador
-                agent.SetDestination(reception.position);
-                transform.DOJump(transform.position, 1, 1, 1);
-            }
+            assignedClients.Add(targetClient);
+            OnReceivePizza?.Invoke();
         }
+        else
+        {
+            OnReturnToReception?.Invoke();
+        }
+    }
+
+    private void GoToClient()
+    {
+        if (targetClient != null)
+        {
+            agent.SetDestination(targetClient.transform.position);
+        }
+    }
+
+    public void DeliverPizzaToClient()
+    {
+        carriedObject.SetActive(false);
+        if (pizzaCollider != null)
+            pizzaCollider.enabled = false;
+
+        if (targetClient != null)
+        {
+            assignedClients.Remove(targetClient);
+            targetClient = null;
+        }
+
+        OnReturnToReception?.Invoke();
+    }
+
+    private Client GetNextFreeClient()
+    {
+        foreach (Client client in GameManager.instance.clients)
+        {
+            if (client.client.state == ClientStates.ORDERING && !assignedClients.Contains(client))
+                return client;
+        }
+        return null;
     }
 }

@@ -55,7 +55,7 @@ public class GameManager : MonoBehaviour
 
     public Table GetFreeTable()
     {
-        // Lleva a la mesa desocupada desocupada más cercana,
+        // Lleva a la mesa desocupada desocupada mï¿½s cercana,
         // o la primera de la lista en desocuparse
         foreach (var table in tables)
         {
@@ -126,6 +126,11 @@ public class GameManager : MonoBehaviour
             isSpawning = true;
             StartCoroutine(ClientSpawner());
         }
+
+        if(Input.GetKeyDown(KeyCode.Return))
+        {
+            GameOver();
+        }
     }
     
     // Comida del menu
@@ -176,7 +181,7 @@ public class GameManager : MonoBehaviour
     {
         unhappyClients++;
 
-        if (unhappyClients >= 6)
+        if (unhappyClients == 6)
         {
             GameOver();
         }
@@ -189,5 +194,10 @@ public class GameManager : MonoBehaviour
             lose.SetActive(true);
             Debug.Log("GAME OVER - Demasiados clientes molestos!");
         }
+    }
+
+    public void ReturnScene(string level)
+    {
+        SceneManager.LoadScene(level);
     }
 }

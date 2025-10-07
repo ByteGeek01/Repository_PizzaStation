@@ -91,7 +91,7 @@ PrefabInstance:
       addedObject: {fileID: 2744903738322363361}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: a97ac9695a147714fb88133a2414a781, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 3179187510307853018}
+      addedObject: {fileID: 4422750206470551416}
   m_SourcePrefab: {fileID: 100100000, guid: a97ac9695a147714fb88133a2414a781, type: 3}
 --- !u!4 &401307668060626051 stripped
 Transform:
@@ -151,20 +151,18 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 112
   m_CollisionDetection: 0
---- !u!114 &3179187510307853018
+--- !u!114 &4422750206470551416
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1070286188655707705}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4722759746813e94fb9bba15ffbb6d16, type: 3}
+  m_Script: {fileID: 11500000, guid: bb65b92142cf65b4e98274526b64777e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  foodSO: {fileID: 11400000, guid: ec0ce4635fd783f428cf126c9c5a13ce, type: 2}
-  icon: {fileID: 0}
 --- !u!1001 &1625791481627304023
 PrefabInstance:
   m_ObjectHideFlags: 0

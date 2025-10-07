@@ -220,8 +220,6 @@ public class Client : MonoBehaviour
                           StartCoroutine(Bye());
                       });
                 break;
-
-
         }
     }
 
