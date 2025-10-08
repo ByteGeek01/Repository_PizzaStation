@@ -19,8 +19,9 @@ public class Mesero : MonoBehaviour
     public Action OnReturnToReception;
 
     private static HashSet<Client> assignedClients = new HashSet<Client>();
-
     private PizzaCollider pizzaCollider;
+
+    private bool returning = false;
 
     void Start()
     {
@@ -33,13 +34,25 @@ public class Mesero : MonoBehaviour
 
         OnReachReception = GoToReception;
         OnReceivePizza = GoToClient;
-        OnReturnToReception = GoToReception;
+        OnReturnToReception = ReturnToReception;  // GoToReception
 
+        // Inicia yendo a recepción
         OnReachReception?.Invoke();
+    }
+
+    private void Update()
+    {
+        // Cuando está regresando
+        if (returning && !agent.pathPending && agent.remainingDistance <= agent.stoppingDistance)
+        {
+            returning = false;
+            OnReachReception?.Invoke(); // reinicia el ciclo
+        }
     }
 
     private void OnTriggerEnter(Collider other)
     {
+        // Recoger pizza
         if (other.CompareTag("Pizza") && !carriedObject.activeSelf)
         {
             TakePizza(other.gameObject);
@@ -67,11 +80,11 @@ public class Mesero : MonoBehaviour
         if (targetClient != null)
         {
             assignedClients.Add(targetClient);
-            OnReceivePizza?.Invoke();
+            OnReceivePizza?.Invoke(); // Va al cliente
         }
         else
         {
-            OnReturnToReception?.Invoke();
+            OnReturnToReception?.Invoke(); // Si no hay clientes, vuelve
         }
     }
 
@@ -83,11 +96,12 @@ public class Mesero : MonoBehaviour
         }
     }
 
+    // llamado desde PizzaCollider al tocar al cliente
     public void DeliverPizzaToClient()
     {
         carriedObject.SetActive(false);
-        if (pizzaCollider != null)
-            pizzaCollider.enabled = false;
+
+        GameManager.instance.RegisterPizzaEntregada();
 
         if (targetClient != null)
         {
@@ -96,6 +110,16 @@ public class Mesero : MonoBehaviour
         }
 
         OnReturnToReception?.Invoke();
+    }
+
+    // Regresa a recepción
+    private void ReturnToReception()
+    {
+        returning = true;
+        agent.SetDestination(reception.position);
+
+        // Animación para dar feedback visual
+        transform.DOJump(reception.position, 0.5f, 1, 1f);
     }
 
     private Client GetNextFreeClient()

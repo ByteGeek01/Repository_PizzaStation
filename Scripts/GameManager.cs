@@ -9,7 +9,6 @@ public class GameManager : MonoBehaviour
 
     public List<Table> tables;
     public List<Client> clients;
-    //public List<FoodSO> menu;
 
     public GameObject[] element;
     public Transform[] spawnElement;
@@ -27,85 +26,25 @@ public class GameManager : MonoBehaviour
     public int unhappyClients = 0;
     public GameObject lose;
 
-    public void Awake()
+    public Inventary inventary;
+    private bool dayEnded = false;
+
+    // 👇 contador de pizzas entregadas
+    public int pizzasEntregadas = 0;
+
+    private void Awake()
     {
         instance = this;
     }
 
-    public void Start()
+    private void Start()
     {
         StartCoroutine(ClientSpawner());
     }
 
-    public Client CreateClient()
+    private void Update()
     {
-        /*
-        Client clt = Instantiate(clientObject, spawnPoint.position, Quaternion.identity).GetComponent<Client>();
-        clients.Add(clt);
-        clt.pedido = RandomChooseFromMenu();
-        return clt;
-        */
-        // Crea al cliente en su punto de spawn
-        GameObject go = Instantiate(clientObject, spawnPoint.position, Quaternion.identity);
-        Client clt = go.GetComponent<Client>();
-        clients.Add(clt);
-        //clt.pedido = RandomChooseFromMenu();
-        return clt;
-    }
-
-    public Table GetFreeTable()
-    {
-        // Lleva a la mesa desocupada desocupada m�s cercana,
-        // o la primera de la lista en desocuparse
-        foreach (var table in tables)
-        {
-            if (!table.isOccupied)
-            {
-                table.isOccupied = true;
-                return table;
-            }
-        }
-        Debug.Log("No hay mesas");
-        return null;
-        /*
-        for (int i = 0; i < tables.Count; i++)
-        {
-            if (!tables[i].isOccupied)
-            {
-                tables[i].isOccupied = true;
-                return tables[i];
-            }
-        }
-        Debug.Log ("No hay");
-        return null;
-        */
-    }
-
-    public void SetTableForClient(Client client)
-    {
-        //client.ChooseTable(GetFreeTable());
-        // Asigna la mesa
-        Table table = GetFreeTable();
-        if (table != null)
-        {
-            client.ChooseTable(table);
-        }
-        else
-        {
-            Debug.Log("Cliente no pudo sentarse");
-        }
-    }
-
-    
-    public void Update()
-    {
-        /*
-        if (Input.GetKeyDown(KeyCode.Return))
-        {
-            SetTableForClient(CreateClient());
-        }
-        */
-        // Ingredientes spawneados
+        // Spawnear ingredientes
         for (int i = 0; i < 4; i++)
         {
             if (oven.ingredients[i] && !Spawned[i])
@@ -119,38 +58,14 @@ public class GameManager : MonoBehaviour
             }
         }
 
-        // Si ya llega a llenarse, debe vaciarse para volver a spawnear
-        if (!isSpawning && clients.Count == 0)
+        // 🔹 Si ya no se spawnean más clientes y todos se fueron
+        if (!isSpawning && clients.Count == 0 && !dayEnded)
         {
-            numberWave = 0;
-            isSpawning = true;
-            StartCoroutine(ClientSpawner());
-        }
-
-        if(Input.GetKeyDown(KeyCode.Return))
-        {
-            GameOver();
-        }
-    }
-    
-    // Comida del menu
-    /*
-    public FoodSO RandomChooseFromMenu()
-    {
-        return menu[Random.Range(0, menu.Count)];
-    }
-    */
-
-    // Borra al cliente una vez termina de comer y camina a la entrada
-    public void RemoveClient(Client client)
-    {
-        if (clients.Contains(client))
-        {
-            clients.Remove(client);
+            dayEnded = true;
+            EndOfDay();
         }
     }
 
-    // Corrutina para el intervalo de spawn
     private IEnumerator ClientSpawner()
     {
         while (true)
@@ -172,9 +87,44 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void Restart()
+    public Client CreateClient()
     {
-        SceneManager.LoadScene(2);
+        GameObject go = Instantiate(clientObject, spawnPoint.position, Quaternion.identity);
+        Client clt = go.GetComponent<Client>();
+        clients.Add(clt);
+        return clt;
+    }
+
+    public void RemoveClient(Client client)
+    {
+        if (clients.Contains(client))
+            clients.Remove(client);
+    }
+
+    public void SetTableForClient(Client client)
+    {
+        Table table = GetFreeTable();
+        if (table != null)
+            client.ChooseTable(table);
+    }
+
+    public Table GetFreeTable()
+    {
+        foreach (var table in tables)
+        {
+            if (!table.isOccupied)
+            {
+                table.isOccupied = true;
+                return table;
+            }
+        }
+        return null;
+    }
+
+    // 🔹 Llamar desde el mesero cuando entrega una pizza
+    public void RegisterPizzaEntregada()
+    {
+        pizzasEntregadas++;
     }
 
     public void RegisterUnhappyClient()
@@ -196,8 +146,26 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void ReturnScene(string level)
+    // 🔹 FIN DEL DÍA
+    public void EndOfDay()
     {
-        SceneManager.LoadScene(level);
+        Debug.Log("Fin del día: todos los clientes fueron atendidos.");
+
+        // Guardar estadísticas del día
+        if (inventary != null)
+        {
+            SessionData.dineroDelDia = inventary.GetCash();
+        }
+        SessionData.pizzasEntregadas = pizzasEntregadas;
+        SessionData.clientesMolestos = unhappyClients;
+
+        // Cambiar de escena
+        StartCoroutine(LoadResultsScene());
+    }
+
+    private IEnumerator LoadResultsScene()
+    {
+        yield return new WaitForSeconds(2f);
+        SceneManager.LoadScene("Ganancia");
     }
 }
