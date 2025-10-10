@@ -10,13 +10,13 @@ public class Ganancias : MonoBehaviour
 
     void Start()
     {
-        int dinero = SessionData.dineroDelDia;
-        int pizzas = SessionData.pizzasEntregadas;
-        int molestos = SessionData.clientesMolestos;
+        int cash = PlayerPrefs.GetInt("Cash", 0);
+        int unhappy = PlayerPrefs.GetInt("UnhappyClients", 0);
+        int pizzas = PlayerPrefs.GetInt("PizzasDelivered", 0);
 
-        textoDinero.text = $"Ganancias del día: ${dinero}";
+        textoDinero.text = $"Ganancias del día: ${cash}";
         textoPizzas.text = $"Pizzas entregadas: {pizzas}";
-        textoClientesMolestos.text = $"Clientes molestos: {molestos}";
+        textoClientesMolestos.text = $"Clientes molestos: {unhappy}";
     }
 
     // Botón para volver a jugar

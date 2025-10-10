@@ -1,11 +1,11 @@
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
 
 public class Oven : MonoBehaviour
 {
     public TakeObject itemCollect;
 
-    public Transform spawnPizza;
+    public Transform[] spawnPizza;
     public GameObject pizza;
 
     public bool[] ingredients = new bool[4];
@@ -39,7 +39,7 @@ public class Oven : MonoBehaviour
                 break;
         }
 
-        // Solo comienza a hornear si no est� horneando y tiene todos los ingredientes
+        // Solo comienza a hornear si no está horneando y tiene todos los ingredientes
         if (!isBaking && AllIngredientsPresent())
         {
             StartCoroutine(Bake());
@@ -61,7 +61,9 @@ public class Oven : MonoBehaviour
     {
         isBaking = true;
         yield return new WaitForSeconds(5f);
-        Instantiate(pizza, spawnPizza.position, Quaternion.identity);
+        Instantiate(pizza, spawnPizza[0].position, Quaternion.identity);
+        //Instantiate(pizza, spawnPizza[1].position, Quaternion.identity);
+        //Instantiate(pizza, spawnPizza[2].position, Quaternion.identity);
 
         itemCollect.InventaryUI[0].SetActive(false);
         itemCollect.InventaryUI[1].SetActive(false);

@@ -64,9 +64,17 @@ PrefabInstance:
       propertyPath: m_ConstrainProportionsScale
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: -1751480086967751553, guid: a97ac9695a147714fb88133a2414a781, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: a97ac9695a147714fb88133a2414a781, type: 3}
       propertyPath: m_Name
       value: pizza
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: a97ac9695a147714fb88133a2414a781, type: 3}
+      propertyPath: m_Layer
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: a97ac9695a147714fb88133a2414a781, type: 3}
       propertyPath: m_IsActive
@@ -89,9 +97,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: a97ac9695a147714fb88133a2414a781, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2744903738322363361}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: a97ac9695a147714fb88133a2414a781, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 4422750206470551416}
   m_SourcePrefab: {fileID: 100100000, guid: a97ac9695a147714fb88133a2414a781, type: 3}
 --- !u!4 &401307668060626051 stripped
 Transform:
@@ -151,18 +156,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 112
   m_CollisionDetection: 0
---- !u!114 &4422750206470551416
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1070286188655707705}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bb65b92142cf65b4e98274526b64777e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1001 &1625791481627304023
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -227,9 +220,45 @@ PrefabInstance:
       propertyPath: m_ConstrainProportionsScale
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: -5412013009686636786, guid: bffecbf1f605bbc4781a628db9db9f8b, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -2917989921993612044, guid: bffecbf1f605bbc4781a628db9db9f8b, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: bffecbf1f605bbc4781a628db9db9f8b, type: 3}
       propertyPath: m_Name
       value: pizza
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: bffecbf1f605bbc4781a628db9db9f8b, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1465964380924731407, guid: bffecbf1f605bbc4781a628db9db9f8b, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2100418899262197623, guid: bffecbf1f605bbc4781a628db9db9f8b, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3263792539397295708, guid: bffecbf1f605bbc4781a628db9db9f8b, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3280729182645617226, guid: bffecbf1f605bbc4781a628db9db9f8b, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3571594905925919674, guid: bffecbf1f605bbc4781a628db9db9f8b, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3935899526539096508, guid: bffecbf1f605bbc4781a628db9db9f8b, type: 3}
+      propertyPath: m_Layer
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

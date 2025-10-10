@@ -29,8 +29,10 @@ public class GameManager : MonoBehaviour
     public Inventary inventary;
     private bool dayEnded = false;
 
-    // 👇 contador de pizzas entregadas
+    // Contador de pizzas entregadas
     public int pizzasEntregadas = 0;
+
+    private HashSet<Client> unhappyClientSet = new HashSet<Client>();
 
     private void Awake()
     {
@@ -44,6 +46,9 @@ public class GameManager : MonoBehaviour
 
     private void Update()
     {
+        // Limpiar referencias nulas
+        clients.RemoveAll(c => c == null);
+
         // Spawnear ingredientes
         for (int i = 0; i < 4; i++)
         {
@@ -62,6 +67,11 @@ public class GameManager : MonoBehaviour
         if (!isSpawning && clients.Count == 0 && !dayEnded)
         {
             dayEnded = true;
+            EndOfDay();
+        }
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
             EndOfDay();
         }
     }
@@ -124,16 +134,22 @@ public class GameManager : MonoBehaviour
     // 🔹 Llamar desde el mesero cuando entrega una pizza
     public void RegisterPizzaEntregada()
     {
-        pizzasEntregadas++;
+        Inventary.OnDisableCashCharge?.Invoke();
     }
 
-    public void RegisterUnhappyClient()
+    public void RegisterUnhappyClient(Client client)
     {
-        unhappyClients++;
-
-        if (unhappyClients == 6)
+        if (!unhappyClientSet.Contains(client))
         {
-            GameOver();
+            unhappyClients++;
+            unhappyClientSet.Add(client);
+
+            Debug.Log($"Cliente molesto agregado. Total: {unhappyClients}");
+
+            if (unhappyClients >= 6)
+            {
+                GameOver();
+            }
         }
     }
 

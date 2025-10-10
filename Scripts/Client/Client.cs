@@ -200,7 +200,7 @@ public class Client : MonoBehaviour
                 CountDown = 0;
                 timer = false;
 
-                GameManager.instance.RegisterUnhappyClient();
+                GameManager.instance.unhappyClients++;
 
                 Debug.Log("Mal restaurant");
 
@@ -244,7 +244,7 @@ public class Client : MonoBehaviour
         mesero.carriedObject.SetActive(false);
         mesero.carriedObject.transform.parent = null;
 
-        inventary.BillPayed();
+        Inventary.OnDisableCashCharge?.Invoke();
 
         if (noOrder <= 0)
         {

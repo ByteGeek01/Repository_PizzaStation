@@ -8,7 +8,7 @@ public class PizzaCollider : MonoBehaviour
     {
         if (other.CompareTag("Client"))
         {
-            mesero.DeliverPizzaToClient();
+            gameObject.SetActive(false);
         }
     }
 }

@@ -3,112 +3,115 @@ using UnityEngine;
 
 public class TakeObject : MonoBehaviour
 {
-    [Header("Inventario interno del jugador")]
     public Dictionary<string, int> inventaryList = new Dictionary<string, int>();
 
-    [Header("Puntos donde se colocan los objetos recogidos")]
     public GameObject[] point;
 
-    [Header("Referencia visual del inventario (íconos, UI)")]
+    public GameObject[] pickedObject;
+
     public GameObject[] InventaryUI;
 
-    private GameObject[] pickedObject;
+    private HashSet<string> pickableTags = new HashSet<string> { "Pizza", "Cheese", "Bread", "Meat", "Sauce", "Waiter" };
+
     private Inventary inventary;
-
-    // Solo estos tags pueden ser recogidos
-    private readonly HashSet<string> pickableTags = new HashSet<string>
-    {
-        "Pizza", "Cheese", "Bread", "Meat", "Sauce", "Waiter"
-    };
-
-    // Costos por ingrediente (editable fácilmente)
-    private readonly Dictionary<string, int> ingredientCosts = new Dictionary<string, int>
-    {
-        { "Bread", 5 },
-        { "Sauce", 5 },
-        { "Cheese", 5 },
-        { "Meat", 5 },
-        { "Pizza", 0 }, // no se cobra
-        { "Waiter", 0 }
-    };
 
     private void Start()
     {
-        // Referencia al componente Inventary del jugador
         GameObject player = GameObject.FindWithTag("Player");
         if (player != null)
+        {
             inventary = player.GetComponent<Inventary>();
+        }
 
         pickedObject = new GameObject[point.Length];
 
-        // Inicializa el diccionario de ingredientes
-        foreach (string item in pickableTags)
+        // Inicializa los ingredientes en el diccionario
+        string[] ingredients = { "Bread", "Sauce", "Cheese", "Meat", "Pizza" };
+        foreach (string item in ingredients)
         {
             if (!inventaryList.ContainsKey(item))
                 inventaryList[item] = 0;
         }
     }
 
+
     private void OnTriggerStay(Collider other)
     {
-        // Si no es un objeto válido o no se presiona E, salimos
-        if (!Input.GetKey(KeyCode.E) || !pickableTags.Contains(other.tag))
-            return;
-
-        if (IsAlreadyPicked(other.gameObject)) return;
-
-        int index = GetFirstFreeSlot();
-        if (index == -1) return;
-
-        string tag = other.tag;
-        int cost = ingredientCosts.ContainsKey(tag) ? ingredientCosts[tag] : 0;
-
-        // Cobro si no es Pizza
-        if (cost > 0)
+        // Si se presiona la tecla E y el objeto tiene un tag de la lista
+        if (Input.GetKey(KeyCode.E) && pickableTags.Contains(other.tag))
         {
-            if (inventary.GetCash() >= cost)
-                inventary.SubtractCash(cost);
+            if (IsAlreadyPicked(other.gameObject)) return;
+
+            // Busca la primera posicion libre en el array
+            int index = GetFirstFreeSlot();
+
+            if (index == -1) return;
+
+            pickedObject[index] = other.gameObject;
+            if (inventaryList.ContainsKey(other.tag))
+            {
+                inventaryList[other.tag]++;
+            }
             else
-                return; // sin dinero suficiente
+            {
+                inventaryList[other.tag] = 1;
+            }
+
+            // Si no es pizza, se cobra
+            if (other.tag != "Pizza")
+            {
+                inventary.SubtractCash(5);
+
+                if (inventary.GetCash() <= 0)
+                {
+                    inventary.AddCash(0); // no cambia nada, solo mantiene consistencia
+                    return;
+                }
+            }
+
+            Rigidbody rb = other.attachedRigidbody;
+
+            if (rb != null)
+            {
+                rb.useGravity = false;
+                rb.isKinematic = true;
+            }
+
+            // Poner el objeto dentro de los puntos de agarre
+            other.transform.SetParent(point[index].transform);
+            other.transform.localPosition = Vector3.zero;
+
+            // Registra el objeto en la lista
+            pickedObject[index] = other.gameObject;
         }
 
-        // Registra en el diccionario local
-        inventaryList[tag]++;
-        Debug.Log($"Obtuviste: {tag} (Total: {inventaryList[tag]})");
-
-        // También se podría actualizar el inventario global si lo necesitás
-        inventary.AddIngredient(tag);
-
-        // Ajusta físicas del objeto
-        Rigidbody rb = other.attachedRigidbody;
-        if (rb != null)
+        if (other.CompareTag("Bread"))
         {
-            rb.useGravity = false;
-            rb.isKinematic = true;
+            InventaryUI[0].SetActive(true);
         }
-
-        // Lo coloca en la mano o posición de recogida
-        other.transform.SetParent(point[index].transform);
-        other.transform.localPosition = Vector3.zero;
-        pickedObject[index] = other.gameObject;
-
-        // Muestra en la UI si existe
-        UpdateIngredientUI(tag);
+        if (other.CompareTag("Sauce"))
+        {
+            InventaryUI[1].SetActive(true);
+        }
+        if (other.CompareTag("Cheese"))
+        {
+            InventaryUI[2].SetActive(true);
+        }
+        if (other.CompareTag("Meat"))
+        {
+            InventaryUI[3].SetActive(true);
+        }
     }
 
-    private void UpdateIngredientUI(string tag)
+    public bool HasIngredientsForRecipe()
     {
-        switch (tag)
-        {
-            case "Bread": InventaryUI[0].SetActive(true); break;
-            case "Sauce": InventaryUI[1].SetActive(true); break;
-            case "Cheese": InventaryUI[2].SetActive(true); break;
-            case "Meat": InventaryUI[3].SetActive(true); break;
-        }
+        return inventaryList.ContainsKey("Bread") && inventaryList["Bread"] >= 1 &&
+           inventaryList.ContainsKey("Sauce") && inventaryList["Sauce"] >= 1 &&
+           inventaryList.ContainsKey("Cheese") && inventaryList["Cheese"] >= 1 &&
+           inventaryList.ContainsKey("Meat") && inventaryList["Meat"] >= 1;
     }
 
-    // === UTILIDADES ===
-
+    // Devuelve el primer index del array
     private int GetFirstFreeSlot()
     {
         for (int i = 0; i < pickedObject.Length; i++)
@@ -119,6 +122,7 @@ public class TakeObject : MonoBehaviour
         return -1;
     }
 
+    // Revisa si ya ha recogido el objeto
     private bool IsAlreadyPicked(GameObject obj)
     {
         foreach (var picked in pickedObject)
@@ -127,22 +131,5 @@ public class TakeObject : MonoBehaviour
                 return true;
         }
         return false;
-    }
-
-    // ✅ Verifica si se tienen los ingredientes necesarios
-    public bool HasIngredientsForRecipe()
-    {
-        return inventaryList["Bread"] >= 1 &&
-               inventaryList["Sauce"] >= 1 &&
-               inventaryList["Cheese"] >= 1 &&
-               inventaryList["Meat"] >= 1;
-    }
-
-    // ✅ Método auxiliar si querés vaciar inventario (por ejemplo, tras cocinar)
-    public void ClearIngredients()
-    {
-        List<string> keys = new List<string>(inventaryList.Keys);
-        foreach (var key in keys)
-            inventaryList[key] = 0;
     }
 }

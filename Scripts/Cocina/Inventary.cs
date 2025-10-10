@@ -1,9 +1,15 @@
+using System;
 using UnityEngine;
 using TMPro;
 using System.Collections.Generic;
 
 public class Inventary : MonoBehaviour
 {
+    public static Inventary instance;
+
+    public static Action OnEnableCashCharge;
+    public static Action OnDisableCashCharge;
+
     [Header("Ingresos")]
     [SerializeField] private int cash = 100;
     [SerializeField] private TextMeshProUGUI cashText;
@@ -13,15 +19,23 @@ public class Inventary : MonoBehaviour
     [SerializeField] private TextMeshProUGUI ingredientsText;
 
     [Header("Costos")]
-    [SerializeField] private int waiterCost = 10; // costo del mesero
-    [SerializeField] private int billIncome = 80;
-    public int GetWaiterCost() => waiterCost;
-    public int BillIncome => billIncome;
+    public int waiterCost = 10;
+    public int billIncome = 80;
+
+    public int pizzasEntregadas = 0;
+    public int clientesMolestos = 0;
+
+    private void Awake()
+    {
+        instance = this;
+
+        OnEnableCashCharge += ChargeWaiter;
+        OnDisableCashCharge += GiveBillIncome;
+    }
 
     private void Start()
     {
         cash = 100;
-        // Inicializa dinero e ingredientes
         UpdateCashUI();
 
         string[] ingredientNames = { "Bread", "Sauce", "Cheese", "Meat", "Pizza", "Waiter" };
@@ -33,7 +47,17 @@ public class Inventary : MonoBehaviour
         UpdateIngredientsUI();
     }
 
-    // Métodos de dinero
+    private void ChargeWaiter()
+    {
+        SubtractCash(waiterCost);
+    }
+
+    private void GiveBillIncome()
+    {
+        AddCash(billIncome);
+        pizzasEntregadas++;
+    }
+
     public void AddCash(int amount)
     {
         cash += amount;
@@ -49,8 +73,6 @@ public class Inventary : MonoBehaviour
     public int GetCash() => cash;
     public int WaiterCostAmount => waiterCost;
 
-
-    // Métodos de ingredientes
     public void AddIngredient(string ingredient, int cost = 0)
     {
         if (!ingredients.ContainsKey(ingredient))
@@ -63,23 +85,10 @@ public class Inventary : MonoBehaviour
         UpdateIngredientsUI();
     }
 
-    public bool HasIngredientsForRecipe()
-    {
-        return ingredients["Bread"] >= 1 &&
-               ingredients["Sauce"] >= 1 &&
-               ingredients["Cheese"] >= 1 &&
-               ingredients["Meat"] >= 1;
-    }
-
     private void UpdateCashUI()
     {
         if (cashText != null)
             cashText.text = $"Cash: ${cash}";
-    }
-
-    public void BillPayed()
-    {
-        AddCash(billIncome);
     }
 
     private void UpdateIngredientsUI()
