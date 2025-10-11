@@ -162,26 +162,26 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    // 🔹 FIN DEL DÍA
     public void EndOfDay()
     {
         Debug.Log("Fin del día: todos los clientes fueron atendidos.");
 
-        // Guardar estadísticas del día
+        // Guardar estadísticas del día en PlayerPrefs
         if (inventary != null)
         {
-            SessionData.dineroDelDia = inventary.GetCash();
+            PlayerPrefs.SetInt("Cash", inventary.GetCash());
+            PlayerPrefs.SetInt("PizzasDelivered", inventary.pizzasEntregadas);
+            PlayerPrefs.SetInt("UnhappyClients", inventary.clientesMolestos);
+            PlayerPrefs.Save();
         }
-        SessionData.pizzasEntregadas = pizzasEntregadas;
-        SessionData.clientesMolestos = unhappyClients;
 
-        // Cambiar de escena
+        // Cambiar de escena a Ganancias
         StartCoroutine(LoadResultsScene());
     }
 
     private IEnumerator LoadResultsScene()
     {
-        yield return new WaitForSeconds(2f);
+        yield return new WaitForSeconds(1f); // Pequeño delay opcional
         SceneManager.LoadScene("Ganancia");
     }
 }

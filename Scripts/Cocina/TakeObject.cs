@@ -4,28 +4,26 @@ using UnityEngine;
 public class TakeObject : MonoBehaviour
 {
     public Dictionary<string, int> inventaryList = new Dictionary<string, int>();
+    public GameObject[] point;             // puntos donde se sujetan los objetos
+    public GameObject[] pickedObject;      // objetos actualmente tomados
+    public GameObject[] InventaryUI;       // referencias a UI
 
-    public GameObject[] point;
-
-    public GameObject[] pickedObject;
-
-    public GameObject[] InventaryUI;
-
-    private HashSet<string> pickableTags = new HashSet<string> { "Pizza", "Cheese", "Bread", "Meat", "Sauce", "Waiter" };
+    private HashSet<string> pickableTags = new HashSet<string>
+    {
+        "Pizza", "Cheese", "Bread", "Meat", "Sauce", "Waiter"
+    };
 
     private Inventary inventary;
+    private bool canPick = true; // evita spam si mantiene presionado E
 
     private void Start()
     {
         GameObject player = GameObject.FindWithTag("Player");
         if (player != null)
-        {
             inventary = player.GetComponent<Inventary>();
-        }
 
         pickedObject = new GameObject[point.Length];
 
-        // Inicializa los ingredientes en el diccionario
         string[] ingredients = { "Bread", "Sauce", "Cheese", "Meat", "Pizza" };
         foreach (string item in ingredients)
         {
@@ -34,84 +32,108 @@ public class TakeObject : MonoBehaviour
         }
     }
 
-
     private void OnTriggerStay(Collider other)
     {
-        // Si se presiona la tecla E y el objeto tiene un tag de la lista
-        if (Input.GetKey(KeyCode.E) && pickableTags.Contains(other.tag))
+        // 🔹 Entregar pizza al mesero (libera todos los puntos)
+        if (other.CompareTag("Waiter") && HasPizzaInHands())
         {
-            if (IsAlreadyPicked(other.gameObject)) return;
+            ClearAllHands();
+            Debug.Log("🍕 Pizza entregada al mesero.");
+            return;
+        }
 
-            // Busca la primera posicion libre en el array
-            int index = GetFirstFreeSlot();
+        // 🔹 Recolectar ingredientes
+        if (Input.GetKeyDown(KeyCode.E) && canPick && pickableTags.Contains(other.tag))
+        {
+            // Evita recoger el mismo objeto 2 veces
+            if (IsAlreadyPicked(other.gameObject))
+                return;
 
-            if (index == -1) return;
-
-            pickedObject[index] = other.gameObject;
-            if (inventaryList.ContainsKey(other.tag))
+            int freeIndex = GetFirstFreeSlot();
+            if (freeIndex == -1)
             {
-                inventaryList[other.tag]++;
+                Debug.Log("No hay más espacio para sostener ingredientes.");
+                return;
             }
-            else
-            {
-                inventaryList[other.tag] = 1;
-            }
 
-            // Si no es pizza, se cobra
-            if (other.tag != "Pizza")
-            {
-                inventary.SubtractCash(5);
+            canPick = false; // evita spam de tecla
 
-                if (inventary.GetCash() <= 0)
+            string tag = other.tag;
+
+            // Cobro si no es pizza
+            if (tag != "Pizza")
+            {
+                if (inventary.GetCash() < 5)
                 {
-                    inventary.AddCash(0); // no cambia nada, solo mantiene consistencia
+                    Debug.Log("No hay suficiente dinero para comprar este ingrediente.");
                     return;
                 }
+                inventary.SubtractCash(5);
             }
 
-            Rigidbody rb = other.attachedRigidbody;
+            // Agrega al inventario una sola vez
+            if (inventaryList.ContainsKey(tag))
+                inventaryList[tag]++;
+            else
+                inventaryList[tag] = 1;
 
+            // Configura físicas y posición
+            Rigidbody rb = other.attachedRigidbody;
             if (rb != null)
             {
                 rb.useGravity = false;
                 rb.isKinematic = true;
             }
 
-            // Poner el objeto dentro de los puntos de agarre
-            other.transform.SetParent(point[index].transform);
+            // Coloca en el punto libre
+            other.transform.SetParent(point[freeIndex].transform);
             other.transform.localPosition = Vector3.zero;
+            pickedObject[freeIndex] = other.gameObject;
 
-            // Registra el objeto en la lista
-            pickedObject[index] = other.gameObject;
-        }
+            UpdateUI(tag);
 
-        if (other.CompareTag("Bread"))
-        {
-            InventaryUI[0].SetActive(true);
-        }
-        if (other.CompareTag("Sauce"))
-        {
-            InventaryUI[1].SetActive(true);
-        }
-        if (other.CompareTag("Cheese"))
-        {
-            InventaryUI[2].SetActive(true);
-        }
-        if (other.CompareTag("Meat"))
-        {
-            InventaryUI[3].SetActive(true);
+            StartCoroutine(ResetPickDelay());
         }
     }
 
-    public bool HasIngredientsForRecipe()
+    private System.Collections.IEnumerator ResetPickDelay()
     {
-        return inventaryList.ContainsKey("Bread") && inventaryList["Bread"] >= 1 &&
-           inventaryList.ContainsKey("Sauce") && inventaryList["Sauce"] >= 1 &&
-           inventaryList.ContainsKey("Cheese") && inventaryList["Cheese"] >= 1 &&
-           inventaryList.ContainsKey("Meat") && inventaryList["Meat"] >= 1;
+        yield return new WaitForSeconds(0.3f);
+        canPick = true;
     }
 
-    // Devuelve el primer index del array
+    private bool HasPizzaInHands()
+    {
+        foreach (var obj in pickedObject)
+        {
+            if (obj != null && obj.CompareTag("Pizza"))
+                return true;
+        }
+        return false;
+    }
+
+    private void ClearAllHands()
+    {
+        for (int i = 0; i < pickedObject.Length; i++)
+        {
+            if (pickedObject[i] != null)
+            {
+                Destroy(pickedObject[i]);
+                pickedObject[i] = null;
+            }
+        }
+    }
+
+    private bool IsAlreadyPicked(GameObject obj)
+    {
+        foreach (var picked in pickedObject)
+        {
+            if (picked == obj)
+                return true;
+        }
+        return false;
+    }
+
     private int GetFirstFreeSlot()
     {
         for (int i = 0; i < pickedObject.Length; i++)
@@ -122,14 +144,11 @@ public class TakeObject : MonoBehaviour
         return -1;
     }
 
-    // Revisa si ya ha recogido el objeto
-    private bool IsAlreadyPicked(GameObject obj)
+    private void UpdateUI(string tag)
     {
-        foreach (var picked in pickedObject)
-        {
-            if (picked == obj)
-                return true;
-        }
-        return false;
+        if (tag == "Bread") InventaryUI[0].SetActive(true);
+        if (tag == "Sauce") InventaryUI[1].SetActive(true);
+        if (tag == "Cheese") InventaryUI[2].SetActive(true);
+        if (tag == "Meat") InventaryUI[3].SetActive(true);
     }
 }

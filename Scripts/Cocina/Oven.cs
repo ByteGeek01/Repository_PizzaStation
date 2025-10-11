@@ -62,8 +62,8 @@ public class Oven : MonoBehaviour
         isBaking = true;
         yield return new WaitForSeconds(5f);
         Instantiate(pizza, spawnPizza[0].position, Quaternion.identity);
-        //Instantiate(pizza, spawnPizza[1].position, Quaternion.identity);
-        //Instantiate(pizza, spawnPizza[2].position, Quaternion.identity);
+        Instantiate(pizza, spawnPizza[1].position, Quaternion.identity);
+        Instantiate(pizza, spawnPizza[2].position, Quaternion.identity);
 
         itemCollect.InventaryUI[0].SetActive(false);
         itemCollect.InventaryUI[1].SetActive(false);

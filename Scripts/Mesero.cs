@@ -20,42 +20,46 @@ public class Mesero : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        // Si colisiona con Pizza
+        // Si colisiona con Pizza y no lleva nada
         if (other.CompareTag("Pizza") && !carriedObject.activeSelf)
         {
-            // Activa prefab que representa la comida
+            // Activa el objeto que siempre lleva
             carriedObject.SetActive(true);
-            Rigidbody rb = other.attachedRigidbody;
-            Inventary.OnEnableCashCharge?.Invoke();
+            carriedObject.transform.SetParent(point.transform);
+            carriedObject.transform.localPosition = Vector3.zero;
 
+            Rigidbody rb = other.attachedRigidbody;
             if (rb != null)
             {
                 rb.useGravity = false;
                 rb.isKinematic = true;
             }
 
-            carriedObject.transform.SetParent(point.transform);
-            carriedObject.transform.localPosition = Vector3.zero;
+            // Desactiva la pizza de la escena (no destruirla)
+            other.gameObject.SetActive(false);
 
-            Destroy(other.gameObject);
+            Inventary.OnEnableCashCharge?.Invoke();
 
             // Buscar el primer cliente de la lista
             if (GameManager.instance.clients.Count > 0)
             {
-                targetClient = GameManager.instance.clients[0]; // toma el primero
+                targetClient = GameManager.instance.clients[0];
                 agent.SetDestination(targetClient.transform.position);
             }
         }
 
+        // Si llega al cliente y lleva la pizza
         if (other.CompareTag("Client") && carriedObject.activeSelf)
         {
-            // Entrega la pizza
+            // Entrega la pizza: solo desactiva carriedObject
             carriedObject.SetActive(false);
             carriedObject.transform.parent = null;
 
             targetClient = null;
             agent.SetDestination(reception.position);
             transform.DOJump(transform.position, 1, 1, 1);
+
+            Inventary.OnDisableCashCharge?.Invoke();
         }
     }
 

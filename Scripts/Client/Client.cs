@@ -30,12 +30,12 @@ public class Client : MonoBehaviour
     public ClientClass client;
     public NavMeshAgent agent;
 
-    public Animator anim;
+    //public Animator anim;
 
     public Transform target;
 
     public Inventary inventary;
-    //public FoodSO pedido;
+
     public float noOrder;
 
     public Table targetTable;
@@ -57,7 +57,7 @@ public class Client : MonoBehaviour
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
-        anim = GetComponent<Animator>();
+        //anim = GetComponent<Animator>();
 
         GameObject player = GameObject.FindWithTag("Player");
         if(player != null)
@@ -145,14 +145,14 @@ public class Client : MonoBehaviour
                         client.state = ClientStates.ORDERING;
                         Debug.Log("Order");
                         thingking = 0;
-                        anim.SetBool("order", true);
+                        //anim.SetBool("order", true);
                     }
                 }
                 break;
 
             // Ordena
             case ClientStates.ORDERING:
-                anim.SetBool("order", true);
+                //anim.SetBool("order", true);
                 //client.state = ClientStates.EATING;
                 /*
                 if (thingking < timeToThing)
@@ -179,7 +179,7 @@ public class Client : MonoBehaviour
                         client.state = ClientStates.LEAVING;
                         target = GameManager.instance.spawnPoint;
                         agent.SetDestination(target.position);
-                        anim.SetBool("order", false);
+                        //anim.SetBool("order", false);
 
                         StartCoroutine(Bye());
                     }
@@ -251,7 +251,7 @@ public class Client : MonoBehaviour
             timer = false;
             client.state = ClientStates.EATING;
             thingking = 0f;
-            anim.SetBool("order", true);
+            //anim.SetBool("order", true);
             transform.DOJump(transform.position, 1.5f, 1, 1);
 
             RemoveUI();

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using UnityEngine;
 using TMPro;
 using System.Collections.Generic;
@@ -11,7 +11,7 @@ public class Inventary : MonoBehaviour
     public static Action OnDisableCashCharge;
 
     [Header("Ingresos")]
-    [SerializeField] private int cash = 100;
+    private int cash; // 🔹 ahora NO es static ni serializado
     [SerializeField] private TextMeshProUGUI cashText;
 
     [Header("Ingredientes")]
@@ -31,13 +31,14 @@ public class Inventary : MonoBehaviour
 
         OnEnableCashCharge += ChargeWaiter;
         OnDisableCashCharge += GiveBillIncome;
+
+        // 🔹 Recuperar dinero guardado (si existe)
+        cash = PlayerPrefs.GetInt("PlayerCash", 100);
+        UpdateCashUI();
     }
 
     private void Start()
     {
-        cash = 100;
-        UpdateCashUI();
-
         string[] ingredientNames = { "Bread", "Sauce", "Cheese", "Meat", "Pizza", "Waiter" };
         foreach (string name in ingredientNames)
         {
@@ -45,6 +46,13 @@ public class Inventary : MonoBehaviour
         }
 
         UpdateIngredientsUI();
+    }
+
+    private void OnDestroy()
+    {
+        // 🔹 Guardar dinero antes de cambiar de escena
+        PlayerPrefs.SetInt("PlayerCash", cash);
+        PlayerPrefs.Save();
     }
 
     private void ChargeWaiter()
@@ -62,12 +70,14 @@ public class Inventary : MonoBehaviour
     {
         cash += amount;
         UpdateCashUI();
+        PlayerPrefs.SetInt("PlayerCash", cash);
     }
 
     public void SubtractCash(int amount)
     {
         cash = Mathf.Max(0, cash - amount);
         UpdateCashUI();
+        PlayerPrefs.SetInt("PlayerCash", cash);
     }
 
     public int GetCash() => cash;
