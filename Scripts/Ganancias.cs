@@ -10,6 +10,7 @@ public class Ganancias : MonoBehaviour
 
     void Start()
     {
+        // Guarda los puntajes de las ganancias, clientes insatisfechos y pizzas entregadas
         int cash = PlayerPrefs.GetInt("Cash", 0);
         int unhappy = PlayerPrefs.GetInt("UnhappyClients", 0);
         int pizzas = PlayerPrefs.GetInt("PizzasDelivered", 0);

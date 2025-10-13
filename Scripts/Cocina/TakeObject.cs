@@ -14,7 +14,7 @@ public class TakeObject : MonoBehaviour
     };
 
     private Inventary inventary;
-    private bool canPick = true; // evita spam si mantiene presionado E
+    private bool canPick = true;
 
     private void Start()
     {
@@ -34,7 +34,7 @@ public class TakeObject : MonoBehaviour
 
     private void OnTriggerStay(Collider other)
     {
-        // 🔹 Entregar pizza al mesero (libera todos los puntos)
+        // Entrega la pizza al mesero y evita que se queden objetos en el array
         if (other.CompareTag("Waiter") && HasPizzaInHands())
         {
             ClearAllHands();
@@ -42,10 +42,10 @@ public class TakeObject : MonoBehaviour
             return;
         }
 
-        // 🔹 Recolectar ingredientes
+        // Recolecta ingredientes
         if (Input.GetKeyDown(KeyCode.E) && canPick && pickableTags.Contains(other.tag))
         {
-            // Evita recoger el mismo objeto 2 veces
+            // Evita recoger el mismo ingrediente multiples veces
             if (IsAlreadyPicked(other.gameObject))
                 return;
 
@@ -56,11 +56,11 @@ public class TakeObject : MonoBehaviour
                 return;
             }
 
-            canPick = false; // evita spam de tecla
+            canPick = false; // evita spam de array
 
             string tag = other.tag;
 
-            // Cobro si no es pizza
+            // Solo cobra los ingredientes y el mesero
             if (tag != "Pizza")
             {
                 if (inventary.GetCash() < 5)
@@ -68,6 +68,7 @@ public class TakeObject : MonoBehaviour
                     Debug.Log("No hay suficiente dinero para comprar este ingrediente.");
                     return;
                 }
+                // Llama a action de quitar dinero
                 inventary.SubtractCash(5);
             }
 
@@ -77,7 +78,7 @@ public class TakeObject : MonoBehaviour
             else
                 inventaryList[tag] = 1;
 
-            // Configura físicas y posición
+            // Físicas y posición de los ingredientes tomados
             Rigidbody rb = other.attachedRigidbody;
             if (rb != null)
             {
@@ -85,7 +86,7 @@ public class TakeObject : MonoBehaviour
                 rb.isKinematic = true;
             }
 
-            // Coloca en el punto libre
+            // Coloca en el primer punto desocupado
             other.transform.SetParent(point[freeIndex].transform);
             other.transform.localPosition = Vector3.zero;
             pickedObject[freeIndex] = other.gameObject;
@@ -96,12 +97,14 @@ public class TakeObject : MonoBehaviour
         }
     }
 
+    // Permite volver a tomar los ingredientes
     private System.Collections.IEnumerator ResetPickDelay()
     {
-        yield return new WaitForSeconds(0.3f);
+        yield return new WaitForSeconds(0.1f);
         canPick = true;
     }
 
+    // Pizza en sus manos
     private bool HasPizzaInHands()
     {
         foreach (var obj in pickedObject)
@@ -112,6 +115,7 @@ public class TakeObject : MonoBehaviour
         return false;
     }
 
+    // Limpia de referencias en array si hace falta
     private void ClearAllHands()
     {
         for (int i = 0; i < pickedObject.Length; i++)
@@ -124,6 +128,7 @@ public class TakeObject : MonoBehaviour
         }
     }
 
+    // Cuando levanta un ingrediente
     private bool IsAlreadyPicked(GameObject obj)
     {
         foreach (var picked in pickedObject)
@@ -134,6 +139,7 @@ public class TakeObject : MonoBehaviour
         return false;
     }
 
+    // Se posiciona en el primer punto disponible
     private int GetFirstFreeSlot()
     {
         for (int i = 0; i < pickedObject.Length; i++)
@@ -144,6 +150,7 @@ public class TakeObject : MonoBehaviour
         return -1;
     }
 
+    // Actualiza el UI de los ingredientes
     private void UpdateUI(string tag)
     {
         if (tag == "Bread") InventaryUI[0].SetActive(true);

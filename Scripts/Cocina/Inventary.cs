@@ -11,7 +11,7 @@ public class Inventary : MonoBehaviour
     public static Action OnDisableCashCharge;
 
     [Header("Ingresos")]
-    private int cash; // 🔹 ahora NO es static ni serializado
+    private int cash;
     [SerializeField] private TextMeshProUGUI cashText;
 
     [Header("Ingredientes")]
@@ -31,14 +31,14 @@ public class Inventary : MonoBehaviour
 
         OnEnableCashCharge += ChargeWaiter;
         OnDisableCashCharge += GiveBillIncome;
-
-        // 🔹 Recuperar dinero guardado (si existe)
+        // Recuperar dinero guardado (si es ya existe)
         cash = PlayerPrefs.GetInt("PlayerCash", 100);
         UpdateCashUI();
     }
 
     private void Start()
     {
+        //GiveBillIncome();
         string[] ingredientNames = { "Bread", "Sauce", "Cheese", "Meat", "Pizza", "Waiter" };
         foreach (string name in ingredientNames)
         {
@@ -50,22 +50,25 @@ public class Inventary : MonoBehaviour
 
     private void OnDestroy()
     {
-        // 🔹 Guardar dinero antes de cambiar de escena
+        // Guarda el dinero antes de cambiar de escena
         PlayerPrefs.SetInt("PlayerCash", cash);
         PlayerPrefs.Save();
     }
 
+    // Cobro de mesero
     private void ChargeWaiter()
     {
         SubtractCash(waiterCost);
     }
 
+    // Cuenta pagada
     private void GiveBillIncome()
     {
         AddCash(billIncome);
         pizzasEntregadas++;
     }
 
+    // Suma dinero
     public void AddCash(int amount)
     {
         cash += amount;
@@ -73,6 +76,7 @@ public class Inventary : MonoBehaviour
         PlayerPrefs.SetInt("PlayerCash", cash);
     }
 
+    // Quita dinero
     public void SubtractCash(int amount)
     {
         cash = Mathf.Max(0, cash - amount);
@@ -83,6 +87,7 @@ public class Inventary : MonoBehaviour
     public int GetCash() => cash;
     public int WaiterCostAmount => waiterCost;
 
+    // Añade ingredienta a cambio de $5
     public void AddIngredient(string ingredient, int cost = 0)
     {
         if (!ingredients.ContainsKey(ingredient))
@@ -95,12 +100,14 @@ public class Inventary : MonoBehaviour
         UpdateIngredientsUI();
     }
 
+    // Actualiza UI de dinero
     private void UpdateCashUI()
     {
         if (cashText != null)
             cashText.text = $"Cash: ${cash}";
     }
 
+    // Actualiza UI de ingredientes
     private void UpdateIngredientsUI()
     {
         if (ingredientsText != null)

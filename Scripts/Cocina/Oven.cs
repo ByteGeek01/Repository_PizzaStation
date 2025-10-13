@@ -9,7 +9,7 @@ public class Oven : MonoBehaviour
     public GameObject pizza;
 
     public bool[] ingredients = new bool[4];
-    private bool isBaking = false;
+    public bool isBaking = false;
 
     private enum IngredientType { Bread, Sauce, Cheese, Meat }
 
@@ -39,7 +39,7 @@ public class Oven : MonoBehaviour
                 break;
         }
 
-        // Solo comienza a hornear si no está horneando y tiene todos los ingredientes
+        // Solo comienza a hornear si tiene todos los ingredientes
         if (!isBaking && AllIngredientsPresent())
         {
             StartCoroutine(Bake());
@@ -65,13 +65,28 @@ public class Oven : MonoBehaviour
         Instantiate(pizza, spawnPizza[1].position, Quaternion.identity);
         Instantiate(pizza, spawnPizza[2].position, Quaternion.identity);
 
+        // Limita a 6 clientes maximo
+        if (GameManager.instance != null && GameManager.instance.clients.Count < GameManager.instance.maxClients && GameManager.instance.numberWave < 6)
+        {
+            GameManager.instance.numberWave++;
+
+            Client newClient = GameManager.instance.CreateClient();
+            GameManager.instance.SetTableForClient(newClient);
+
+            // Si llegamos al límite de olas, detener spawneo
+            if (GameManager.instance.numberWave >= 6)
+            {
+                GameManager.instance.isSpawning = false;
+            }
+        }
+
         itemCollect.InventaryUI[0].SetActive(false);
         itemCollect.InventaryUI[1].SetActive(false);
         itemCollect.InventaryUI[2].SetActive(false);
         itemCollect.InventaryUI[3].SetActive(false);
 
-        // Espera un segundo y reinicia ingredientes
-        yield return new WaitForSeconds(1f);
+        // Espera un tiempo, reinicia ingredientes y el horno se apaga
+        yield return new WaitForSeconds(30f);
         for (int i = 0; i < ingredients.Length; i++)
         {
             ingredients[i] = false;

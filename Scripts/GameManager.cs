@@ -19,9 +19,9 @@ public class GameManager : MonoBehaviour
     public Transform spawnPoint;
 
     public int numberWave;
-    public float spawnInterval = 10f;
+    public float spawnInterval = 8f;
     public int maxClients = 6;
-    private bool isSpawning = true;
+    public bool isSpawning = true;
 
     public int unhappyClients = 0;
     public GameObject lose;
@@ -32,7 +32,10 @@ public class GameManager : MonoBehaviour
     // Contador de pizzas entregadas
     public int pizzasEntregadas = 0;
 
+    // Clientes insatisfechos
     private HashSet<Client> unhappyClientSet = new HashSet<Client>();
+
+    public bool order;
 
     private void Awake()
     {
@@ -46,10 +49,10 @@ public class GameManager : MonoBehaviour
 
     private void Update()
     {
-        // Limpiar referencias nulas
+        // Limpia referencias nulas
         clients.RemoveAll(c => c == null);
 
-        // Spawnear ingredientes
+        // Spawnea ingredientes
         for (int i = 0; i < 4; i++)
         {
             if (oven.ingredients[i] && !Spawned[i])
@@ -63,19 +66,21 @@ public class GameManager : MonoBehaviour
             }
         }
 
-        // 🔹 Si ya no se spawnean más clientes y todos se fueron
+        // Si ya no se spawnean más clientes y todos se fueron
         if (!isSpawning && clients.Count == 0 && !dayEnded)
         {
             dayEnded = true;
             EndOfDay();
         }
 
+        // Atajo de conteo final
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             EndOfDay();
         }
     }
 
+    // Corrutina para spawnear cientes
     private IEnumerator ClientSpawner()
     {
         while (true)
@@ -88,7 +93,7 @@ public class GameManager : MonoBehaviour
                 yield break;
             }
 
-            if (clients.Count < maxClients)
+            if (oven.isBaking == true && clients.Count < maxClients)
             {
                 numberWave++;
                 Client newClient = CreateClient();
@@ -97,6 +102,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    // Crea al cliente
     public Client CreateClient()
     {
         GameObject go = Instantiate(clientObject, spawnPoint.position, Quaternion.identity);
@@ -105,6 +111,7 @@ public class GameManager : MonoBehaviour
         return clt;
     }
 
+    // Quita al cliente
     public void RemoveClient(Client client)
     {
         if (clients.Contains(client))
@@ -131,7 +138,7 @@ public class GameManager : MonoBehaviour
         return null;
     }
 
-    // 🔹 Llamar desde el mesero cuando entrega una pizza
+    // Llamar desde el mesero cuando entrega una pizza
     public void RegisterPizzaEntregada()
     {
         Inventary.OnDisableCashCharge?.Invoke();

@@ -231,7 +231,7 @@ public class Client : MonoBehaviour
             floatingText.text = $"x{noOrder}";
         }
 
-        // 🔹 actualizar en el panel global
+        // Actualiza en el panel global
         if (uiItem != null)
             uiItem.UpdateOrder(noOrder);
     }
@@ -273,7 +273,7 @@ public class Client : MonoBehaviour
     {
         yield return new WaitForSeconds(2f);
         client.state = ClientStates.LEAVING;
-        yield return new WaitForSeconds(4f);
+        yield return new WaitForSeconds(3f);
         GameManager.instance.RemoveClient(this);
         Destroy(gameObject);
         targetTable.isOccupied = false;

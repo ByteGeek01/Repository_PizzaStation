@@ -8,6 +8,7 @@ public class ClientUIItem : MonoBehaviour
 
     private Client linkedClient;
 
+    // Contador de tiempo y tamaño de orden del cliente 
     public void Setup(Client client)
     {
         linkedClient = client;
