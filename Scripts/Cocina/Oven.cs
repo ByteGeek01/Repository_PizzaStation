@@ -73,7 +73,7 @@ public class Oven : MonoBehaviour
             Client newClient = GameManager.instance.CreateClient();
             GameManager.instance.SetTableForClient(newClient);
 
-            // Si llegamos al límite de olas, detener spawneo
+            // Si llega al límite de cliente, detiene el spawn
             if (GameManager.instance.numberWave >= 6)
             {
                 GameManager.instance.isSpawning = false;
@@ -86,7 +86,7 @@ public class Oven : MonoBehaviour
         itemCollect.InventaryUI[3].SetActive(false);
 
         // Espera un tiempo, reinicia ingredientes y el horno se apaga
-        yield return new WaitForSeconds(30f);
+        yield return new WaitForSeconds(1f);
         for (int i = 0; i < ingredients.Length; i++)
         {
             ingredients[i] = false;
