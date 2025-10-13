@@ -86,7 +86,7 @@ public class Oven : MonoBehaviour
         itemCollect.InventaryUI[3].SetActive(false);
 
         // Espera un tiempo, reinicia ingredientes y el horno se apaga
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(30f);
         for (int i = 0; i < ingredients.Length; i++)
         {
             ingredients[i] = false;
