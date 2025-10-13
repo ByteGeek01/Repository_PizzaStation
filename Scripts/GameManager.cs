@@ -160,6 +160,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    // Si cae en el mar o 6 clientes se van molestos
     private void GameOver()
     {
         if (lose != null)
@@ -173,7 +174,7 @@ public class GameManager : MonoBehaviour
     {
         Debug.Log("Fin del día: todos los clientes fueron atendidos.");
 
-        // Guardar estadísticas del día en PlayerPrefs
+        // Guardar datos del día en PlayerPrefs
         if (inventary != null)
         {
             PlayerPrefs.SetInt("Cash", inventary.GetCash());

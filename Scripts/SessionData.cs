@@ -1,4 +1,4 @@
-// Archivo nuevo: SessionData.cs
+// Clase para almacenar los datos del dia
 using UnityEngine;
 
 public static class SessionData
