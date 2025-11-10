@@ -26,8 +26,12 @@ public class Inventary : MonoBehaviour
     public int pizzasEntregadas = 0;
     public int clientesMolestos = 0;
 
-    public GameObject personalUpdate;
-    public GameObject[] waiter;
+    [Header("Personal y Waiters")]
+    public GameObject personalUpdate; // Panel o botón para contratar
+    public GameObject[] waiter;       // Array de meseros
+
+    private int activeWaiters = 0; // cantidad de meseros activos
+    private bool hiredThisRound = false; // Evita mostrar el panel tras contratar
 
     private void Awake()
     {
@@ -35,36 +39,53 @@ public class Inventary : MonoBehaviour
 
         OnEnableCashCharge += ChargeWaiter;
         OnDisableCashCharge += GiveBillIncome;
-        // Recuperar dinero guardado (si es ya existe)
+
+        // Recuperar dinero y cantidad de meseros activos guardados
         cash = PlayerPrefs.GetInt("PlayerCash", 100);
+        activeWaiters = PlayerPrefs.GetInt("ActiveWaiters", 0); // <-- Cambiado a 0
+        hiredThisRound = PlayerPrefs.GetInt("HiredThisRound", 0) == 1;
+
         UpdateCashUI();
     }
 
     private void Start()
     {
-        //GiveBillIncome();
+        // Inicializar inventario
         string[] ingredientNames = { "Bread", "Sauce", "Cheese", "Meat", "Pizza", "Waiter" };
         foreach (string name in ingredientNames)
         {
             ingredients[name] = 0;
         }
 
-        UpdateIngredientsUI();
-    }
-
-    public void Update()
-    {
-        if (cash >= 500)
+        // Reactivar los meseros guardados
+        for (int i = 0; i < waiter.Length; i++)
         {
-            personalUpdate.SetActive(true);
+            waiter[i].SetActive(i < activeWaiters);
         }
+
+        // Mostrar el panel de contratación si hay dinero suficiente y todavía faltan meseros
+        CheckPersonalUpdateAvailability();
+
+        UpdateIngredientsUI();
     }
 
     private void OnDestroy()
     {
-        // Guarda el dinero antes de cambiar de escena
+        // Guarda el dinero y cantidad de meseros antes de cambiar de escena
         PlayerPrefs.SetInt("PlayerCash", cash);
+        PlayerPrefs.SetInt("ActiveWaiters", activeWaiters);
+        PlayerPrefs.SetInt("HiredThisRound", hiredThisRound ? 1 : 0);
         PlayerPrefs.Save();
+    }
+
+    // Mostrar/ocultar el panel según dinero, meseros activos y si ya contrató en la ronda
+    private void CheckPersonalUpdateAvailability()
+    {
+        if (personalUpdate != null)
+        {
+            bool canHire = (cash >= 500 && activeWaiters < waiter.Length && !hiredThisRound);
+            personalUpdate.SetActive(canHire);
+        }
     }
 
     // Cobro de mesero
@@ -86,6 +107,7 @@ public class Inventary : MonoBehaviour
         cash += amount;
         UpdateCashUI();
         PlayerPrefs.SetInt("PlayerCash", cash);
+        CheckPersonalUpdateAvailability();
     }
 
     // Quita dinero
@@ -94,12 +116,13 @@ public class Inventary : MonoBehaviour
         cash = Mathf.Max(0, cash - amount);
         UpdateCashUI();
         PlayerPrefs.SetInt("PlayerCash", cash);
+        CheckPersonalUpdateAvailability();
     }
 
     public int GetCash() => cash;
     public int WaiterCostAmount => waiterCost;
 
-    // Añade ingredienta a cambio de $5
+    // Añade ingrediente a cambio de dinero
     public void AddIngredient(string ingredient, int cost = 0)
     {
         if (!ingredients.ContainsKey(ingredient))
@@ -112,11 +135,50 @@ public class Inventary : MonoBehaviour
         UpdateIngredientsUI();
     }
 
-    // Mas meseros
+    // Contratar más meseros
     public void MoreWaiter()
     {
+        if (cash < moreWaiter)
+        {
+            Debug.Log("💸 No tienes suficiente dinero para contratar otro mesero.");
+            return;
+        }
+
+        if (activeWaiters >= waiter.Length)
+        {
+            Debug.Log("✅ Ya has contratado todos los meseros disponibles.");
+            personalUpdate.SetActive(false);
+            return;
+        }
+
+        // Cobrar
         SubtractCash(moreWaiter);
-        waiter[0].SetActive(true);
+
+        // Activar el siguiente mesero
+        waiter[activeWaiters].SetActive(true);
+        activeWaiters++;
+
+        // Marcar que ya se contrató un mesero en esta ronda
+        hiredThisRound = true;
+        PlayerPrefs.SetInt("HiredThisRound", 1);
+
+        // Guardar progreso
+        PlayerPrefs.SetInt("ActiveWaiters", activeWaiters);
+        PlayerPrefs.Save();
+
+        Debug.Log($"👨‍🍳 Contrataste un nuevo mesero. Total activos: {activeWaiters}");
+
+        // Ocultar el panel hasta la próxima ronda
+        personalUpdate.SetActive(false);
+    }
+
+    // Método para reiniciar el estado de contratación al iniciar nueva ronda
+    public void ResetHireFlagForNewRound()
+    {
+        hiredThisRound = false;
+        PlayerPrefs.SetInt("HiredThisRound", 0);
+        PlayerPrefs.Save();
+        CheckPersonalUpdateAvailability();
     }
 
     // Actualiza UI de dinero

@@ -182,6 +182,23 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    public void ModifySpawnSpeed(bool slowDown)
+    {
+        if (slowDown)
+        {
+            // Aumenta el intervalo hasta 3 veces más lento
+            spawnInterval *= 3f;
+            Debug.Log($"🌊 Marea alta — Clientes aparecerán más lento. Nuevo intervalo: {spawnInterval}s");
+        }
+        else
+        {
+            // Restablece al valor normal (por ejemplo 8f)
+            spawnInterval = 8f;
+            Debug.Log($"🌊 Marea baja — Clientes vuelven a aparecer normal cada {spawnInterval}s");
+        }
+    }
+
+
     public void EndOfDay()
     {
         Debug.Log("Fin del día: todos los clientes fueron atendidos.");

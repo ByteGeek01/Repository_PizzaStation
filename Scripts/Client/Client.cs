@@ -82,7 +82,7 @@ public class Client : MonoBehaviour
 
         UpdateFloatingText();
 
-        // 🔹 Instanciar item en el panel global
+        // Instanciar item en el panel global
         if (clientUIPrefab != null && UIManager.instance != null)
         {
             GameObject item = Instantiate(clientUIPrefab, UIManager.instance.clientsPanel);
@@ -102,8 +102,8 @@ public class Client : MonoBehaviour
             target = table.chair;
             client.state = ClientStates.GOING_TO_TABLE;
             agent.SetDestination(target.position);
-            timer = true;
-            CountDown = 180;
+            initialCountdown = CountDown;
+            hasJumpedHalf = false;
         }
     }
 
@@ -127,9 +127,17 @@ public class Client : MonoBehaviour
         {
             CountDown -= Time.deltaTime;
 
-            // 🔹 actualizar el UI del cliente
+            // actualiza el UI del cliente
             if (uiItem != null)
                 uiItem.UpdateTimer(CountDown);
+
+            // Impaciente
+            if (!hasJumpedHalf && CountDown <= initialCountdown / 2f)
+            {
+                hasJumpedHalf = true;
+                transform.DOJump(transform.position, 1.5f, 1, 1);
+                Debug.Log($"{client.nameClient} está impaciente!");
+            }
 
             if (CountDown <= 0)
             {
