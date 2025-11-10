@@ -21,9 +21,13 @@ public class Inventary : MonoBehaviour
     [Header("Costos")]
     public int waiterCost = 10;
     public int billIncome = 80;
+    public int moreWaiter = 200;
 
     public int pizzasEntregadas = 0;
     public int clientesMolestos = 0;
+
+    public GameObject personalUpdate;
+    public GameObject[] waiter;
 
     private void Awake()
     {
@@ -46,6 +50,14 @@ public class Inventary : MonoBehaviour
         }
 
         UpdateIngredientsUI();
+    }
+
+    public void Update()
+    {
+        if (cash >= 500)
+        {
+            personalUpdate.SetActive(true);
+        }
     }
 
     private void OnDestroy()
@@ -98,6 +110,13 @@ public class Inventary : MonoBehaviour
 
         ingredients[ingredient]++;
         UpdateIngredientsUI();
+    }
+
+    // Mas meseros
+    public void MoreWaiter()
+    {
+        SubtractCash(moreWaiter);
+        waiter[0].SetActive(true);
     }
 
     // Actualiza UI de dinero

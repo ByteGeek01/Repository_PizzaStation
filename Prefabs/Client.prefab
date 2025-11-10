@@ -161,17 +161,15 @@ MonoBehaviour:
     nameClient: Sofia
     state: 0
   agent: {fileID: 263062743946620525}
-  anim: {fileID: 0}
   target: {fileID: 0}
   inventary: {fileID: 0}
-  pedido: {fileID: 11400000, guid: ec0ce4635fd783f428cf126c9c5a13ce, type: 2}
   noOrder: 0
   targetTable: {fileID: 0}
   timeToThing: 1
   mesero: {fileID: 0}
   floatingUIPrefab: {fileID: 5982590285516493341, guid: ebc2b655591bc834a891b2aab034969d, type: 3}
   clientUIPrefab: {fileID: 3813563868070466443, guid: 3ce03520fb2cc2f44b2a107b8f5f9e19, type: 3}
-  CountDown: 200
+  CountDown: 180
 --- !u!195 &263062743946620525
 NavMeshAgent:
   m_ObjectHideFlags: 0

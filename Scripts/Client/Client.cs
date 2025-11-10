@@ -52,7 +52,11 @@ public class Client : MonoBehaviour
     private ClientUIItem uiItem;
 
     private bool timer = false;
-    public float CountDown = 200f;
+    public float CountDown = 180f;
+
+    private float initialCountdown;
+    private bool hasJumpedHalf = false;
+
 
     void Start()
     {
@@ -85,6 +89,8 @@ public class Client : MonoBehaviour
             uiItem = item.GetComponent<ClientUIItem>();
             uiItem.Setup(this); // le pasamos el cliente
         }
+
+        CountDown = Random.Range(120f, 240f);
     }
 
     // Elige la mesa
@@ -97,7 +103,7 @@ public class Client : MonoBehaviour
             client.state = ClientStates.GOING_TO_TABLE;
             agent.SetDestination(target.position);
             timer = true;
-            CountDown = 200;
+            CountDown = 180;
         }
     }
 
