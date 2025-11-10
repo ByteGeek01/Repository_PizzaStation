@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -37,6 +38,8 @@ public class GameManager : MonoBehaviour
 
     public bool order;
 
+    public TextMeshProUGUI day;
+
     private void Awake()
     {
         instance = this;
@@ -44,6 +47,15 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
+        // Si no existe el valor "dia", lo inicializamos a 1
+        if (!PlayerPrefs.HasKey("dia"))
+            PlayerPrefs.SetInt("dia", 1);
+
+        int diaActual = PlayerPrefs.GetInt("dia", 1);
+
+        if (day != null)
+            day.text = $"Día {diaActual}";
+
         StartCoroutine(ClientSpawner());
     }
 
@@ -174,18 +186,22 @@ public class GameManager : MonoBehaviour
     {
         Debug.Log("Fin del día: todos los clientes fueron atendidos.");
 
-        // Guardar datos del día en PlayerPrefs
+        // Guardar datos del día
         if (inventary != null)
         {
             PlayerPrefs.SetInt("Cash", inventary.GetCash());
             PlayerPrefs.SetInt("PizzasDelivered", inventary.pizzasEntregadas);
             PlayerPrefs.SetInt("UnhappyClients", inventary.clientesMolestos);
-            PlayerPrefs.Save();
         }
 
-        // Cambiar de escena a Ganancias
+        // Incrementar el día
+        int diaActual = PlayerPrefs.GetInt("dia", 1);
+        PlayerPrefs.SetInt("dia", diaActual + 1);
+        PlayerPrefs.Save();
+
         StartCoroutine(LoadResultsScene());
     }
+
 
     private IEnumerator LoadResultsScene()
     {
