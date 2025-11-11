@@ -34,7 +34,10 @@ public class TakeObject : MonoBehaviour
 
     private void OnTriggerStay(Collider other)
     {
-        // Entrega la pizza al mesero y evita que se queden objetos en el array
+        if (!canPick) return;
+        if (!pickableTags.Contains(other.tag)) return;
+
+        // ENTREGAR PIZZA
         if (other.CompareTag("Waiter") && HasPizzaInHands())
         {
             ClearAllHands();
@@ -42,43 +45,46 @@ public class TakeObject : MonoBehaviour
             return;
         }
 
-        // Recolecta ingredientes
-        if (Input.GetKeyDown(KeyCode.E) && canPick && pickableTags.Contains(other.tag))
+        // TOMAR OBJETO
+        if (Input.GetKeyDown(KeyCode.E))
         {
-            // Evita recoger el mismo ingrediente multiples veces
-            if (IsAlreadyPicked(other.gameObject))
+            string tag = other.tag;
+
+            // Evita duplicar ingredientes del mismo tipo
+            if (!CanPickType(tag))
+            {
+                Debug.Log($"⚠ Ya tienes este ingrediente en la mano: {tag}");
                 return;
+            }
+
+            CleanupPickedArray();
 
             int freeIndex = GetFirstFreeSlot();
             if (freeIndex == -1)
             {
-                Debug.Log("No hay más espacio para sostener ingredientes.");
+                Debug.Log("No hay espacios disponibles.");
                 return;
             }
 
-            canPick = false; // evita spam de array
+            canPick = false;
 
-            string tag = other.tag;
-
-            // Solo cobra los ingredientes y el mesero
+            // Cobro solo si no es pizza
             if (tag != "Pizza")
             {
                 if (inventary.GetCash() < 5)
                 {
-                    Debug.Log("No hay suficiente dinero para comprar este ingrediente.");
+                    Debug.Log("No hay suficiente dinero.");
+                    StartCoroutine(ResetPickDelay());
                     return;
                 }
-                // Llama a action de quitar dinero
                 inventary.SubtractCash(5);
             }
 
-            // Agrega al inventario una sola vez
-            if (inventaryList.ContainsKey(tag))
-                inventaryList[tag]++;
-            else
+            // Inventario lógico (solo una vez)
+            if (inventaryList[tag] < 1)
                 inventaryList[tag] = 1;
 
-            // Físicas y posición de los ingredientes tomados
+            // Físicas y posición
             Rigidbody rb = other.attachedRigidbody;
             if (rb != null)
             {
@@ -86,25 +92,23 @@ public class TakeObject : MonoBehaviour
                 rb.isKinematic = true;
             }
 
-            // Coloca en el primer punto desocupado
+            // Parentado al slot libre
             other.transform.SetParent(point[freeIndex].transform);
             other.transform.localPosition = Vector3.zero;
+
             pickedObject[freeIndex] = other.gameObject;
 
             UpdateUI(tag);
-
             StartCoroutine(ResetPickDelay());
         }
     }
 
-    // Permite volver a tomar los ingredientes
     private System.Collections.IEnumerator ResetPickDelay()
     {
         yield return new WaitForSeconds(0.1f);
         canPick = true;
     }
 
-    // Pizza en sus manos
     private bool HasPizzaInHands()
     {
         foreach (var obj in pickedObject)
@@ -115,7 +119,6 @@ public class TakeObject : MonoBehaviour
         return false;
     }
 
-    // Limpia de referencias en array si hace falta
     private void ClearAllHands()
     {
         for (int i = 0; i < pickedObject.Length; i++)
@@ -128,18 +131,27 @@ public class TakeObject : MonoBehaviour
         }
     }
 
-    // Cuando levanta un ingrediente
-    private bool IsAlreadyPicked(GameObject obj)
+    // Evita duplicar ingredientes del mismo tipo
+    private bool CanPickType(string tag)
     {
-        foreach (var picked in pickedObject)
+        foreach (var obj in pickedObject)
         {
-            if (picked == obj)
-                return true;
+            if (obj != null && obj.CompareTag(tag))
+                return false;
         }
-        return false;
+        return true;
     }
 
-    // Se posiciona en el primer punto disponible
+    // Elimina referencias rotas
+    private void CleanupPickedArray()
+    {
+        for (int i = 0; i < pickedObject.Length; i++)
+        {
+            if (pickedObject[i] != null && pickedObject[i].transform.parent == null)
+                pickedObject[i] = null;
+        }
+    }
+
     private int GetFirstFreeSlot()
     {
         for (int i = 0; i < pickedObject.Length; i++)
@@ -150,7 +162,6 @@ public class TakeObject : MonoBehaviour
         return -1;
     }
 
-    // Actualiza el UI de los ingredientes
     private void UpdateUI(string tag)
     {
         if (tag == "Bread") InventaryUI[0].SetActive(true);

@@ -272,7 +272,6 @@ public class Client : MonoBehaviour
         }
     }
 
-
     private void RemoveUI()
     {
         if (uiItem != null)
