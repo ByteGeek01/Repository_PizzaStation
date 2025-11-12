@@ -5,48 +5,62 @@ public class Oven : MonoBehaviour
 {
     public TakeObject itemCollect;
 
+    [Header("Horno y Pizza")]
     public Transform[] spawnPizza;
     public GameObject pizza;
 
+    [Header("Ingredientes requeridos")]
     public bool[] ingredients = new bool[4];
-    public bool isBaking = false;
-
     private enum IngredientType { Bread, Sauce, Cheese, Meat }
 
-    public void OnTriggerEnter(Collider other)
+    [Header("Estado del horno")]
+    public bool isBaking = false;
+    public int ovenLevel = 1; // Nivel 1 = 1 pizza, Nivel 2 = 3 pizzas
+
+    [Header("Mejoras")]
+    public GameObject upgradeNotice; // Panel o ícono de mejora
+    public int upgradeCost = 1000;
+
+    private void Start()
     {
-        // Lista de ingredientes de pizza
+        // Recuperar nivel del horno guardado (por si ya fue mejorado antes)
+        ovenLevel = PlayerPrefs.GetInt("OvenLevel", 1);
+
+        // Comprobar si el jugador tiene suficiente dinero para mostrar la mejora
+        int playerCash = PlayerPrefs.GetInt("PlayerCash", 0);
+
+        if (upgradeNotice != null)
+            upgradeNotice.SetActive(playerCash >= upgradeCost && ovenLevel == 1);
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
         switch (other.tag)
         {
             case "Bread":
                 ingredients[(int)IngredientType.Bread] = true;
                 Destroy(other.gameObject);
                 break;
-
             case "Sauce":
                 ingredients[(int)IngredientType.Sauce] = true;
                 Destroy(other.gameObject);
                 break;
-
             case "Cheese":
                 ingredients[(int)IngredientType.Cheese] = true;
                 Destroy(other.gameObject);
                 break;
-
             case "Meat":
                 ingredients[(int)IngredientType.Meat] = true;
                 Destroy(other.gameObject);
                 break;
         }
 
-        // Solo comienza a hornear si tiene todos los ingredientes
         if (!isBaking && AllIngredientsPresent())
         {
             StartCoroutine(Bake());
         }
     }
 
-    // Ingredientes presentes
     private bool AllIngredientsPresent()
     {
         foreach (bool hasIngredient in ingredients)
@@ -56,41 +70,75 @@ public class Oven : MonoBehaviour
         return true;
     }
 
-    // Con todos los ingredientes, se hace la pizza
-    public IEnumerator Bake()
+    private IEnumerator Bake()
     {
         isBaking = true;
-        yield return new WaitForSeconds(5f);
-        Instantiate(pizza, spawnPizza[0].position, Quaternion.identity);
-        Instantiate(pizza, spawnPizza[1].position, Quaternion.identity);
-        Instantiate(pizza, spawnPizza[2].position, Quaternion.identity);
+        Debug.Log($"🔥 Horneando {ovenLevel} pizza(s)...");
 
-        // Limita a 6 clientes maximo
-        if (GameManager.instance != null && GameManager.instance.clients.Count < GameManager.instance.maxClients && GameManager.instance.numberWave < 6)
+        yield return new WaitForSeconds(5f);
+
+        int pizzasToSpawn = ovenLevel == 1 ? 1 : 3;
+
+        for (int i = 0; i < pizzasToSpawn && i < spawnPizza.Length; i++)
+        {
+            Instantiate(pizza, spawnPizza[i].position, Quaternion.identity);
+        }
+
+        // Generar clientes (si hay espacio)
+        if (GameManager.instance != null &&
+            GameManager.instance.clients.Count < GameManager.instance.maxClients &&
+            GameManager.instance.numberWave < 6)
         {
             GameManager.instance.numberWave++;
 
             Client newClient = GameManager.instance.CreateClient();
             GameManager.instance.SetTableForClient(newClient);
 
-            // Si llega al límite de cliente, detiene el spawn
             if (GameManager.instance.numberWave >= 6)
-            {
                 GameManager.instance.isSpawning = false;
-            }
         }
 
-        itemCollect.InventaryUI[0].SetActive(false);
-        itemCollect.InventaryUI[1].SetActive(false);
-        itemCollect.InventaryUI[2].SetActive(false);
-        itemCollect.InventaryUI[3].SetActive(false);
+        // Apagar los iconos del inventario de ingredientes
+        foreach (var ui in itemCollect.InventaryUI)
+        {
+            ui.SetActive(false);
+        }
 
-        // Espera un tiempo, reinicia ingredientes y el horno se apaga
+        // Esperar antes de volver a usar el horno
         yield return new WaitForSeconds(30f);
         for (int i = 0; i < ingredients.Length; i++)
-        {
             ingredients[i] = false;
-        }
+
         isBaking = false;
+    }
+
+    // --- 💡 MEJORA DEL HORNO ---
+    public void UpgradeOven()
+    {
+        if (Inventary.instance == null) return;
+
+        if (ovenLevel >= 2)
+        {
+            Debug.Log("🔥 El horno ya está al máximo nivel.");
+            return;
+        }
+
+        if (Inventary.instance.GetCash() < upgradeCost)
+        {
+            Debug.Log("💸 No tienes suficiente dinero para mejorar el horno.");
+            return;
+        }
+
+        // Restar dinero y mejorar el horno
+        Inventary.instance.SubtractCash(upgradeCost);
+        ovenLevel = 2;
+
+        PlayerPrefs.SetInt("OvenLevel", ovenLevel);
+        PlayerPrefs.Save();
+
+        Debug.Log("🔥 ¡Horno mejorado! Ahora puede hornear 3 pizzas a la vez.");
+
+        if (upgradeNotice != null)
+            upgradeNotice.SetActive(false);
     }
 }
