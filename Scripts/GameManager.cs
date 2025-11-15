@@ -40,6 +40,7 @@ public class GameManager : MonoBehaviour
 
     public TextMeshProUGUI day;
 
+    public Animator animPlayer;
     private void Awake()
     {
         instance = this;
@@ -167,6 +168,7 @@ public class GameManager : MonoBehaviour
 
             if (unhappyClients >= 6)
             {
+                animPlayer.SetTrigger("Lose");
                 GameOver();
             }
         }
@@ -187,7 +189,7 @@ public class GameManager : MonoBehaviour
         if (slowDown)
         {
             // Aumenta el intervalo hasta 3 veces más lento
-            spawnInterval *= 3f;
+            spawnInterval *= 4f;
             Debug.Log($"🌊 Marea alta — Clientes aparecerán más lento. Nuevo intervalo: {spawnInterval}s");
         }
         else
@@ -201,6 +203,7 @@ public class GameManager : MonoBehaviour
 
     public void EndOfDay()
     {
+        animPlayer.SetTrigger("Win");
         Debug.Log("Fin del día: todos los clientes fueron atendidos.");
 
         // Guardar datos del día

@@ -49,8 +49,12 @@ public class Client : MonoBehaviour
     private bool timer = false;
     private bool hasJumpedHalf = false;
 
+    private readonly string[] possibleNames = { "Sofia", "Patana", "Carla", "Vere" };
+
     void Start()
     {
+        client.nameClient = possibleNames[Random.Range(0, possibleNames.Length)];
+
         agent = GetComponent<NavMeshAgent>();
 
         GameObject player = GameObject.FindWithTag("Player");

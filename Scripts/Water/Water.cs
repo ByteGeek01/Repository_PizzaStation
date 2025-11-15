@@ -8,7 +8,7 @@ public class Water : MonoBehaviour
 
     [Header("Animación del agua (marea)")]
     public float amplitude = 0.5f;   // Altura máxima de la marea
-    public float duration = 6f;      // Tiempo de subida o bajada
+    public float duration = 20f;      // Tiempo de subida o bajada
     public float lateralMove = 0.2f; // Movimiento lateral opcional
     public Ease easeType = Ease.InOutSine; // Suavizado del movimiento
 

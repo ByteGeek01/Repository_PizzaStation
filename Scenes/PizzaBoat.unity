@@ -4363,6 +4363,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -5151492872390713093, guid: 35f8e60eb50b9da48bd575b3b002ff4c, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 35f8e60eb50b9da48bd575b3b002ff4c, type: 3}
       propertyPath: m_Name
       value: Player
@@ -4400,6 +4404,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 35f8e60eb50b9da48bd575b3b002ff4c, type: 3}
       insertIndex: -1
       addedObject: {fileID: 177553622}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 35f8e60eb50b9da48bd575b3b002ff4c, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 177553623}
   m_SourcePrefab: {fileID: 100100000, guid: 35f8e60eb50b9da48bd575b3b002ff4c, type: 3}
 --- !u!1 &177553611 stripped
 GameObject:
@@ -4534,6 +4541,28 @@ MonoBehaviour:
   waiter:
   - {fileID: 802399123}
   - {fileID: 1787137682}
+--- !u!95 &177553623
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 177553611}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: f1ad8b6e3aa68234a854c4ff595d1d2c, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1001 &178779899
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -18279,6 +18308,7 @@ MonoBehaviour:
   pizzasEntregadas: 0
   order: 0
   day: {fileID: 604596610}
+  animPlayer: {fileID: 177553623}
 --- !u!4 &688123105
 Transform:
   m_ObjectHideFlags: 0
@@ -43401,8 +43431,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1674372105}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.26964718, y: -0.0047314144, z: 0.0013249046, w: 0.9629467}
-  m_LocalPosition: {x: -4.83, y: 3.3757994, z: -5.216202}
+  m_LocalRotation: {x: 0.26964778, y: -0.0042633708, z: 0.0011938417, w: 0.96294886}
+  m_LocalPosition: {x: -5.22, y: 3.3757994, z: -5.216202}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

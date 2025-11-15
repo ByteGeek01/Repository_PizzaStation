@@ -4,9 +4,9 @@ using UnityEngine;
 public class TakeObject : MonoBehaviour
 {
     public Dictionary<string, int> inventaryList = new Dictionary<string, int>();
-    public GameObject[] point;             // puntos donde se sujetan los objetos
-    public GameObject[] pickedObject;      // objetos actualmente tomados
-    public GameObject[] InventaryUI;       // referencias a UI
+    public GameObject[] point;
+    public GameObject[] pickedObject;
+    public GameObject[] InventaryUI;
 
     private HashSet<string> pickableTags = new HashSet<string>
     {
@@ -14,6 +14,8 @@ public class TakeObject : MonoBehaviour
     };
 
     private Inventary inventary;
+
+    private Collider currentObject;  // 🔥 El objeto dentro del trigger
     private bool canPick = true;
 
     private void Start()
@@ -26,18 +28,37 @@ public class TakeObject : MonoBehaviour
 
         string[] ingredients = { "Bread", "Sauce", "Cheese", "Meat", "Pizza" };
         foreach (string item in ingredients)
+            inventaryList[item] = 0;
+    }
+
+    private void Update()
+    {
+        // Solo toma si hay un objeto cerca y presiona E
+        if (currentObject != null && Input.GetKeyDown(KeyCode.E))
         {
-            if (!inventaryList.ContainsKey(item))
-                inventaryList[item] = 0;
+            TryPickObject(currentObject);
         }
     }
 
-    private void OnTriggerStay(Collider other)
+    private void OnTriggerEnter(Collider other)
+    {
+        if (pickableTags.Contains(other.tag))
+            currentObject = other;
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (currentObject == other)
+            currentObject = null;
+    }
+
+    private void TryPickObject(Collider other)
     {
         if (!canPick) return;
-        if (!pickableTags.Contains(other.tag)) return;
 
-        // ENTREGAR PIZZA
+        string tag = other.tag;
+
+        // ENTREGAR PIZZA AL MESERO
         if (other.CompareTag("Waiter") && HasPizzaInHands())
         {
             ClearAllHands();
@@ -45,62 +66,46 @@ public class TakeObject : MonoBehaviour
             return;
         }
 
-        // TOMAR OBJETO
-        if (Input.GetKeyDown(KeyCode.E))
+        // Evita duplicar ingredientes
+        if (!CanPickType(tag))
         {
-            string tag = other.tag;
-
-            // Evita duplicar ingredientes del mismo tipo
-            if (!CanPickType(tag))
-            {
-                Debug.Log($"⚠ Ya tienes este ingrediente en la mano: {tag}");
-                return;
-            }
-
-            CleanupPickedArray();
-
-            int freeIndex = GetFirstFreeSlot();
-            if (freeIndex == -1)
-            {
-                Debug.Log("No hay espacios disponibles.");
-                return;
-            }
-
-            canPick = false;
-
-            // Cobro solo si no es pizza
-            if (tag != "Pizza")
-            {
-                if (inventary.GetCash() < 5)
-                {
-                    Debug.Log("No hay suficiente dinero.");
-                    StartCoroutine(ResetPickDelay());
-                    return;
-                }
-                inventary.SubtractCash(5);
-            }
-
-            // Inventario lógico (solo una vez)
-            if (inventaryList[tag] < 1)
-                inventaryList[tag] = 1;
-
-            // Físicas y posición
-            Rigidbody rb = other.attachedRigidbody;
-            if (rb != null)
-            {
-                rb.useGravity = false;
-                rb.isKinematic = true;
-            }
-
-            // Parentado al slot libre
-            other.transform.SetParent(point[freeIndex].transform);
-            other.transform.localPosition = Vector3.zero;
-
-            pickedObject[freeIndex] = other.gameObject;
-
-            UpdateUI(tag);
-            StartCoroutine(ResetPickDelay());
+            Debug.Log($"⚠ Ya tienes un ingrediente del tipo {tag}");
+            return;
         }
+
+        CleanupPickedArray();
+
+        int slot = GetFirstFreeSlot();
+        if (slot == -1)
+        {
+            Debug.Log("❌ No hay espacio en las manos.");
+            return;
+        }
+
+        canPick = false;
+
+        // 🔥 YA NO HAY COSTO
+        // inventary.SubtractCash(5);
+
+        // Lógica inventario
+        inventaryList[tag] = 1;
+
+        // Física
+        Rigidbody rb = other.attachedRigidbody;
+        if (rb != null)
+        {
+            rb.useGravity = false;
+            rb.isKinematic = true;
+        }
+
+        // Parent
+        other.transform.SetParent(point[slot].transform);
+        other.transform.localPosition = Vector3.zero;
+
+        pickedObject[slot] = other.gameObject;
+
+        UpdateUI(tag);
+        StartCoroutine(ResetPickDelay());
     }
 
     private System.Collections.IEnumerator ResetPickDelay()
@@ -111,11 +116,10 @@ public class TakeObject : MonoBehaviour
 
     private bool HasPizzaInHands()
     {
-        foreach (var obj in pickedObject)
-        {
-            if (obj != null && obj.CompareTag("Pizza"))
+        foreach (var o in pickedObject)
+            if (o != null && o.CompareTag("Pizza"))
                 return true;
-        }
+
         return false;
     }
 
@@ -131,34 +135,28 @@ public class TakeObject : MonoBehaviour
         }
     }
 
-    // Evita duplicar ingredientes del mismo tipo
     private bool CanPickType(string tag)
     {
-        foreach (var obj in pickedObject)
-        {
-            if (obj != null && obj.CompareTag(tag))
+        foreach (var o in pickedObject)
+            if (o != null && o.CompareTag(tag))
                 return false;
-        }
+
         return true;
     }
 
-    // Elimina referencias rotas
     private void CleanupPickedArray()
     {
         for (int i = 0; i < pickedObject.Length; i++)
-        {
             if (pickedObject[i] != null && pickedObject[i].transform.parent == null)
                 pickedObject[i] = null;
-        }
     }
 
     private int GetFirstFreeSlot()
     {
         for (int i = 0; i < pickedObject.Length; i++)
-        {
             if (pickedObject[i] == null)
                 return i;
-        }
+
         return -1;
     }
 
