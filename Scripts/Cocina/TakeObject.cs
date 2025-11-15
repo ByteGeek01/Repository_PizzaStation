@@ -62,7 +62,7 @@ public class TakeObject : MonoBehaviour
         if (other.CompareTag("Waiter") && HasPizzaInHands())
         {
             ClearAllHands();
-            Debug.Log("🍕 Pizza entregada al mesero.");
+            Debug.Log("Pizza entregada al mesero.");
             return;
         }
 
