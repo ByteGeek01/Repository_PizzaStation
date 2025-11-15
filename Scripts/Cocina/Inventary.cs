@@ -50,6 +50,10 @@ public class Inventary : MonoBehaviour
 
     private void Start()
     {
+        // Reiniciar contratación por nueva ronda
+        hiredThisRound = false;
+        PlayerPrefs.SetInt("HiredThisRound", 0);
+
         // Inicializar inventario
         string[] ingredientNames = { "Bread", "Sauce", "Cheese", "Meat", "Pizza", "Waiter" };
         foreach (string name in ingredientNames)
@@ -57,15 +61,11 @@ public class Inventary : MonoBehaviour
             ingredients[name] = 0;
         }
 
-        // Reactivar los meseros guardados
+        // Reactivar meseros guardados
         for (int i = 0; i < waiter.Length; i++)
-        {
             waiter[i].SetActive(i < activeWaiters);
-        }
 
-        // Mostrar el panel de contratación si hay dinero suficiente y todavía faltan meseros
         CheckPersonalUpdateAvailability();
-
         UpdateIngredientsUI();
     }
 
